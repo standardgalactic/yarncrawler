@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yarncrawler Demos</title>
+<style>
+  body {
+    margin: 0; padding: 0;
+    background: black; color: #0f0;
+    font-family: monospace;
+    text-align: center;
+  }
+  canvas { width: 100%; height: 60vh; background: #111; display:block; margin:auto; }
+  button {
+    font-size: 1.2em;
+    padding: 12px 20px;
+    margin: 10px;
+    background: #0f0;
+    border: none;
+    border-radius: 6px;
+    color: black;
+  }
+</style>
+</head>
+<body>
+<h1>Yarncrawler Demos</h1>
+<canvas id="sim"></canvas>
+<button id="toggle">Switch Simulation</button>
+
+<script>
+const canvas = document.getElementById("sim");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight * 0.6;
+
+let mode = 0; // 0 = berm growth, 1 = RSVP scalar field
+let t = 0;
+
+function drawBerms() {
+  ctx.fillStyle = "#111";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  for (let i=0;i<50;i++) {
+    const x = (Math.sin(t*0.01+i)*0.5+0.5)*canvas.width;
+    const y = (Math.cos(t*0.01+i)*0.5+0.5)*canvas.height;
+    ctx.beginPath();
+    ctx.arc(x,y,10+5*Math.sin(t*0.05+i),0,Math.PI*2);
+    ctx.fillStyle = "#0f0";
+    ctx.fill();
+  }
+}
+
+function drawRSVP() {
+  const img = ctx.createImageData(canvas.width, canvas.height);
+  for (let i=0;i<img.data.length;i+=4){
+    const idx = i/4;
+    const x = idx % canvas.width;
+    const y = Math.floor(idx/canvas.width);
+    const v = Math.floor(128+127*Math.sin(0.01*x+0.02*y+t*0.02));
+    img.data[i]=0; img.data[i+1]=v; img.data[i+2]=0; img.data[i+3]=255;
+  }
+  ctx.putImageData(img,0,0);
+}
+
+function loop() {
+  if (mode===0) drawBerms(); else drawRSVP();
+  t++;
+  requestAnimationFrame(loop);
+}
+loop();
+
+document.getElementById("toggle").onclick = () => {
+  mode = 1-mode;
+};
+</script>
+</body>
+</html>  const ctx = canvas.getContext('2d');
+  function drawGrid(grid, mode){
+    const {w,h,B,C,N,S} = grid;
+    const img = ctx.createImageData(w,h);
+    for(let i=0;i<w*h;i++){
+      let r=0,g=0,b=0;
+      if(mode==='berm'){
+        // Map: B -> green, C -> orange, N -> blue, S -> white overlay
+        const bB = Math.min(1,B[i]);
+        const bC = Math.min(1,C[i]);
+        const bN = Math.min(1,N[i]);
+        r = 200*bC + 40*bB;
+        g = 220*bB + 60*bC;
+        b = 220*bN + 30*bB;
+        const s = Math.min(1,S[i]);
+        r = lerp(r,255,s*0.2); g = lerp(g,255,s*0.2); b = lerp(b,255,s*0.2);
+      }else{
+        // RSVP: visualize Φ in magma palette
+        const v = Math.min(1, grid.B[i]);
+        // simple palette
+        const t=v; r= 255*Math.pow(t,0.6); g= 200*Math.pow(t,0.9); b= 80*t;
+      }
+      const ii=i*4; img.data[ii]=r; img.data[ii+1]=g; img.data[ii+2]=b; img.data[ii+3]=255;
+    }
+    // Scale image to canvas
+    const off = new OffscreenCanvas(grid.w, grid.h);
+    const octx = off.getContext('2d');
+    octx.putImageData(img,0,0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(off, 0,0, canvas.width, canvas.height);
+  }
+
+  // Painting helper
+  function attachPainter(grid, state){
+    let painting=false;
+    function xy(evt){
+      const rect=canvas.getBoundingClientRect();
+      const cx=evt.clientX-rect.left, cy=evt.clientY-rect.top;
+      const x = Math.floor(cx/canvas.width*grid.w);
+      const y = Math.floor(cy/canvas.height*grid.h);
+      return {x:clamp(x,0,grid.w-1), y:clamp(y,0,grid.h-1)};
+    }
+    function dab(x0,y0,rad,field,val,op){
+      for(let y=y0-rad;y<=y0+rad;y++){
+        if(y<0||y>=grid.h) continue;
+        for(let x=x0-rad;x<=x0+rad;x++){
+          if(x<0||x>=grid.w) continue;
+          const d=(x-x0)**2+(y-y0)**2; if(d>rad*rad) continue;
+          const i=grid.index(x,y);
+          let v = field[i];
+          if(op==='add') v += val;
+          else if(op==='set') v = val;
+          field[i]=clamp(v,0,1e3);
+        }
+      }
+    }
+    canvas.addEventListener('pointerdown',e=>{painting=true; const {x,y}=xy(e); 
+      if(state.paintTarget==='S') dab(x,y,state.brush,grid.S, state.paintValue, 'add');
+      if(state.paintTarget==='Phi') dab(x,y,state.brush,grid.B, state.paintValue, 'add');
+    });
+    canvas.addEventListener('pointermove',e=>{ if(!painting) return; const {x,y}=xy(e);
+      if(state.paintTarget==='S') dab(x,y,state.brush,grid.S, state.paintValue, 'add');
+      if(state.paintTarget==='Phi') dab(x,y,state.brush,grid.B, state.paintValue, 'add');
+    });
+    window.addEventListener('pointerup',()=>painting=false);
+  }
+
+  // -------------------------------
+  // Simulation A: Stigmergic Berms
+  // -------------------------------
+  function makeBermSim(){
+    const W=180, H=120; const grid = new Grid(W,H);
+    // Initialize affinity S as a band across the center (imitate boundary)
+    grid.forEach((x,y,i)=>{
+      const d=Math.abs(y-H/2);
+      const tau=10;
+      const base=Math.exp(-d/tau);
+      grid.S[i]=base*0.7;
+      // gentle resource mask R -> modulate S horizontally
+      const rx = 0.4+0.6*Math.exp(-((x-W*0.75)**2)/(2*(W*0.2)**2));
+      grid.S[i]*=rx;
+    });
+    // Facilitation constants
+    const params={
+      dt:0.2, DB:0.8, DC:0.2, DN:0.25,
+      alphaB:0.09, alphaC:0.06, alphaN:0.05,
+      betaB:0.6, deltaB:0.02, deltaC:0.006, deltaN:0.008,
+      C0:0.5, N0:0.5, K:1.2,
+      adv:0.0, // simple advection strength
+      running:true,
+      paintTarget:'S', paintValue:0.3, brush:6
+    };
+
+    // Simple slope for advection (optional)
+    grid.forEach((x,y,i)=>{
+      const ux=0, uy=0.0; grid.u[i*2]=ux; grid.u[i*2+1]=uy;
+    });
+
+    function lap(A,i,x,y){
+      const xm=x>0?i-1:i, xp=x<grid.w-1?i+1:i;
+      const ym=y>0?i-grid.w:i, yp=y<grid.h-1?i+grid.w:i;
+      return (A[xm]+A[xp]+A[ym]+A[yp]-4*A[i]);
+    }
+
+    function step(){
+      const p=params, {B,C,N,S,u,tmp}=grid; const w=grid.w,h=grid.h; const dt=p.dt;
+
+      // Diffuse/advection for B
+      grid.forEach((x,y,i)=>{
+        let dB = p.DB*lap(B,i,x,y);
+        if(p.adv!==0){ const ux=u[i*2], uy=u[i*2+1];
+          const xm=Math.max(0,x-1), xp=Math.min(w-1,x+1), ym=Math.max(0,y-1), yp=Math.min(h-1,y+1);
+          const Bx=B[grid.index(xp,y)]-B[grid.index(xm,y)];
+          const By=B[grid.index(x,y p)]-B[grid.index(x,ym)]; // prevent typo
+        }
+      });
+      // We'll do simpler: pure diffusion; advection term omitted for stability in this minimal demo
+
+      // Reaction terms & update
+      grid.forEach((x,y,i)=>{
+        const b=B[i], c=C[i], n=N[i], s=S[i];
+        const M = (c/(c+p.C0))*(n/(n+p.N0));
+        const growth = p.alphaB*s*(1 + p.betaB*M*b)*(1 - b/p.K);
+        const dB = p.DB*lap(B,i,x,y) + (growth - p.deltaB*b);
+        const dC = p.DC*lap(C,i,x,y) + (p.alphaC*s - p.deltaC*c);
+        const dN = p.DN*lap(N,i,x,y) + (p.alphaN*s - p.deltaN*n - 0.02*b*n);
+        tmp[i]= b + dt*dB;
+        C[i] = c + dt*dC;
+        N[i] = n + dt*dN;
+      });
+      grid.B.set(grid.tmp);
+    }
+
+    const state={grid, params, mode:'berm'};
+    attachPainter(grid, params);
+
+    function ui(){
+      controlsBody.innerHTML = ''+
+        `<div class="row">
+           <button class="btn primary" id="play">${params.running? 'Pause':'Run'}</button>
+           <button class="btn" id="step">Step</button>
+           <button class="btn" id="reset">Reset</button>
+         </div>
+         <label>Paint target <select id="paintTarget">
+           <option value="S">Affinity S (boundary)</option>
+           <option value="Phi">Berm density Φ</option>
+         </select></label>
+         <label>Brush radius <input type="range" id="brush" min="2" max="16" step="1" value="${params.brush}"></label>
+         <label>Paint intensity <input type="range" id="pval" min="0" max="1" step="0.05" value="${params.paintValue}"></label>
+         <label>dt <input type="range" id="dt" min="0.05" max="0.6" step="0.05" value="${params.dt}"></label>
+         <label>Diffusion DB <input type="range" id="DB" min="0" max="2" step="0.05" value="${params.DB}"></label>
+         <label>α_B (deposition) <input type="range" id="alphaB" min="0" max="0.3" step="0.01" value="${params.alphaB}"></label>
+         <label>β_B (facilitation) <input type="range" id="betaB" min="0" max="1.2" step="0.05" value="${params.betaB}"></label>
+         <label>δ_B (loss) <input type="range" id="deltaB" min="0" max="0.1" step="0.002" value="${params.deltaB}"></label>`;
+      legend.innerHTML = 'B (berm) = green, C (char) = orange, N (nutrients) = blue; S (affinity) lightens.';
+      const $=(id)=>document.getElementById(id);
+      $('play').onclick=()=>{params.running=!params.running; ui();};
+      $('step').onclick=()=>{step(); drawGrid(grid,'berm');};
+      $('reset').onclick=()=>{grid.clear(); grid.forEach((x,y,i)=>{ const d=Math.abs(y-grid.h/2); grid.S[i]=0.7*Math.exp(-d/10);});};
+      $('paintTarget').onchange=(e)=>params.paintTarget=e.target.value;
+      $('brush').oninput=(e)=>params.brush=+e.target.value;
+      $('pval').oninput=(e)=>params.paintValue=+e.target.value;
+      ['dt','DB','alphaB','betaB','deltaB'].forEach(k=>{
+        $(k).oninput=(e)=>{params[k]=+e.target.value;};
+      });
+    }
+
+    ui();
+
+    function render(){ drawGrid(grid,'berm'); hud.textContent=`Terra Preta — t=${(t*params.dt).toFixed(1)} | ⌀S=${avg(grid.S).toFixed(2)} | ⌀B=${avg(grid.B).toFixed(2)}`; }
+    function avg(A){ let s=0; for(let i=0;i<A.length;i++) s+=A[i]; return s/A.length; }
+    let t=0; function loop(){ if(params.running){ step(); t++; } render(); requestAnimationFrame(loop);} loop();
+
+    return state;
+  }
+
+  // --------------------------------
+  // Simulation B: RSVP Scalar–Vector
+  // --------------------------------
+  function makeRSVPSim(){
+    const W=180, H=120; const grid = new Grid(W,H);
+    // B = Φ field; u = flow field (simple vortex)
+    grid.forEach((x,y,i)=>{
+      const cx=W/2, cy=H/2; const dx=(x-cx)/W, dy=(y-cy)/H;
+      // tangential vector field (vortex)
+      const ux = -dy, uy = dx; const s=0.6; grid.u[i*2]=s*ux; grid.u[i*2+1]=s*uy;
+      grid.B[i]=0; grid.S[i]=0; // S unused here; we paint Φ directly
+    });
+    const params={ dt:0.15, D:0.9, adv:0.8, decay:0.01, running:true, paintTarget:'Phi', paintValue:1.0, brush:6 };
+
+    function lap(A,i,x,y){
+      const xm=x>0?i-1:i, xp=x<grid.w-1?i+1:i;
+      const ym=y>0?i-grid.w:i, yp=y<grid.h-1?i+grid.w:i;
+      return (A[xm]+A[xp]+A[ym]+A[yp]-4*A[i]);
+    }
+    function step(){
+      const {B,u,tmp}=grid; const {D,adv,decay,dt}=params; const w=grid.w,h=grid.h;
+      grid.forEach((x,y,i)=>{
+        const lx = D*lap(B,i,x,y);
+        // Upwind-ish advection (simple centered difference)
+        const xm=Math.max(0,x-1), xp=Math.min(w-1,x+1), ym=Math.max(0,y-1), yp=Math.min(h-1,y+1);
+        const dBx=(B[grid.index(xp,y)]-B[grid.index(xm,y)])*0.5;
+        const dBy=(B[grid.index(x,y p)]-B[grid.index(x,ym)])*0.5; // guard below
+      });
+      // For numerical stability in a compact demo, use diffusion+decay only, then add gentle swirl in render
+      grid.forEach((x,y,i)=>{
+        const b=grid.B[i]; const d = params.D*lap(grid.B,i,x,y) - params.decay*b;
+        grid.tmp[i] = b + params.dt*d;
+      });
+      grid.B.set(grid.tmp);
+    }
+
+    attachPainter(grid, params);
+
+    function ui(){
+      controlsBody.innerHTML = ''+
+        `<div class="row">
+           <button class="btn primary" id="play">${params.running? 'Pause':'Run'}</button>
+           <button class="btn" id="step">Step</button>
+           <button class="btn" id="reset">Reset</button>
+         </div>
+         <label>Paint Φ (source) <input type="range" id="pval" min="0" max="2" step="0.1" value="${params.paintValue}"></label>
+         <label>Brush radius <input type="range" id="brush" min="2" max="20" step="1" value="${params.brush}"></label>
+         <label>dt <input type="range" id="dt" min="0.05" max="0.6" step="0.05" value="${params.dt}"></label>
+         <label>Diffusion D <input type="range" id="D" min="0" max="2" step="0.05" value="${params.D}"></label>
+         <label>Decay <input type="range" id="decay" min="0" max="0.1" step="0.002" value="${params.decay}"></label>`;
+      legend.innerHTML = 'Φ (scalar) heatmap; paint to inject mass. (Vector flow shown as swirl overlay.)';
+      const $=(id)=>document.getElementById(id);
+      $('play').onclick=()=>{params.running=!params.running; ui();};
+      $('step').onclick=()=>{step(); draw();};
+      $('reset').onclick=()=>{grid.B.fill(0)};
+      ['pval','brush','dt','D','decay'].forEach(k=>{$(k).oninput=(e)=>{params[k]=+e.target.value;};});
+    }
+
+    function drawVectors(){
+      // draw a subtle swirl field for intuition
+      ctx.save(); ctx.globalAlpha=0.25; ctx.strokeStyle='#64d7ff';
+      const skip=14; const sx=canvas.width/grid.w, sy=canvas.height/grid.h;
+      for(let y=skip;y<canvas.height;y+=skip){
+        for(let x=skip;x<canvas.width;x+=skip){
+          const gx=Math.floor(x/sx), gy=Math.floor(y/sy);
+          const i=grid.index(clamp(gx,0,grid.w-1), clamp(gy,0,grid.h-1));
+          const ux=grid.u[i*2], uy=grid.u[i*2+1];
+          const len=10; const x2=x+ux*len, y2=y+uy*len;
+          ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x2,y2); ctx.stroke();
+        }
+      }
+      ctx.restore();
+    }
+
+    function draw(){
+      drawGrid(grid,'rsvp');
+      drawVectors();
+      hud.textContent=`RSVP Scalar–Vector — t=${(t*params.dt).toFixed(1)} | ⌀Φ=${avg(grid.B).toFixed(2)}`;
+    }
+
+    function avg(A){ let s=0; for(let i=0;i<A.length;i++) s+=A[i]; return s/A.length; }
+    function loop(){ if(params.running){ step(); t++; } draw(); requestAnimationFrame(loop);} let t=0; ui(); loop();
+
+    return {grid, params, mode:'rsvp'};
+  }
+
+  // Tab logic
+  let sim = null; let current='berm';
+  function load(tab){
+    current=tab; if(sim && sim.dispose) sim.dispose();
+    if(tab==='berm') sim = makeBermSim(); else sim = makeRSVPSim();
+    resize();
+  }
+  tabs.addEventListener('click', (e)=>{
+    const t=e.target.closest('.tab'); if(!t) return; [...tabs.children].forEach(x=>x.classList.remove('active')); t.classList.add('active'); load(t.dataset.tab);
+  });
+
+  // boot
+  load('berm');
+})();
+</script></body>
+</html>

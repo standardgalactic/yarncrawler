@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2025)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: yarncrawler.aux
+The style file: plainnat.bst
+Database file #1: yarncrawler.bib
+You've used 12 entries,
+            2773 wiz_defined-function locations,
+            674 strings with 7241 characters,
+and the built_in function-call counts, 5943 in all, are:
+= -- 503
+> -- 434
+< -- 8
++ -- 147
+- -- 135
+* -- 498
+:= -- 970
+add.period$ -- 46
+call.type$ -- 12
+change.case$ -- 76
+chr.to.int$ -- 12
+cite$ -- 24
+duplicate$ -- 241
+empty$ -- 422
+format.name$ -- 157
+if$ -- 1204
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 16
+newline$ -- 78
+num.names$ -- 48
+pop$ -- 155
+preamble$ -- 1
+purify$ -- 68
+quote$ -- 0
+skip$ -- 196
+stack$ -- 0
+substring$ -- 145
+swap$ -- 12
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 112
+warning$ -- 0
+while$ -- 45
+width$ -- 0
+write$ -- 176
