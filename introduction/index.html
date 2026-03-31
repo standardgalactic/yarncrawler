@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yarncrawler</title>
+
+<style>
+
+body{
+margin:0;
+background:#000;
+color:#7cff7c;
+font-family:monospace;
+display:flex;
+flex-direction:column;
+align-items:center;
+text-align:center;
+padding:20px;
+}
+
+canvas{
+width:340px;
+height:340px;
+background:#000;
+border-radius:50%;
+margin-bottom:20px;
+box-shadow:0 0 10px #00ff0030,0 0 40px #00ff0010 inset;
+touch-action:none;
+}
+
+.controls{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+justify-content:center;
+margin-bottom:12px;
+}
+
+button, select{
+background:#001400;
+border:1px solid #00ff00;
+color:#7cff7c;
+padding:8px 14px;
+font-size:.8em;
+cursor:pointer;
+}
+
+.timer{
+min-width:80px;
+font-size:1.1em;
+}
+
+.captions{
+max-width:720px;
+min-height:2.4em;
+border:1px solid #00ff0030;
+background:#001000;
+padding:10px;
+margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>Yarncrawler</h2>
+
+<canvas id="scope"></canvas>
+
+<div class="controls">
+
+<button id="toggle">Play</button>
+
+<select id="speed">
+<option value="0.75">0.75×</option>
+<option value="0.85">0.85×</option>
+<option value="1" selected>1×</option>
+<option value="1.1">1.1×</option>
+<option value="1.25">1.25×</option>
+</select>
+
+<button id="loop">Loop Off</button>
+
+<div class="timer" id="timer">--:--</div>
+
+</div>
+
+<div id="captions" class="captions"></div>
+
+<audio id="audio" src="How_Yarncrawler_reconstructs_reality_with_physics.mp3">
+<track kind="captions" src="How_Yarncrawler_reconstructs_reality_with_physics.vtt" default>
+</audio>
+
+<script>
+
+/* ===== canvas ===== */
+
+const canvas=document.getElementById("scope")
+const ctx=canvas.getContext("2d")
+
+const dpr=window.devicePixelRatio||1
+canvas.width=340*dpr
+canvas.height=340*dpr
+ctx.setTransform(dpr,0,0,dpr,0,0)
+
+/* ===== audio ===== */
+
+const audio=document.getElementById("audio")
+const captions=document.getElementById("captions")
+const toggle=document.getElementById("toggle")
+const loop=document.getElementById("loop")
+const timer=document.getElementById("timer")
+const speed=document.getElementById("speed")
+
+let audioCtx, analyser, buffer
+
+function initAudio(){
+if(audioCtx) return
+audioCtx=new (window.AudioContext||window.webkitAudioContext)()
+analyser=audioCtx.createAnalyser()
+analyser.fftSize=2048
+const src=audioCtx.createMediaElementSource(audio)
+src.connect(analyser)
+analyser.connect(audioCtx.destination)
+buffer=new Uint8Array(analyser.fftSize)
+}
+
+/* ===== subtitles ===== */
+
+function attachTrack(){
+const track=audio.textTracks[0]
+if(!track) return
+track.mode="hidden"
+track.oncuechange=()=>{
+const cue=track.activeCues[0]
+captions.textContent=cue?cue.text:""
+}
+}
+
+audio.addEventListener("loadedmetadata",attachTrack)
+
+/* ===== controls ===== */
+
+toggle.onclick=()=>{
+initAudio()
+if(audio.paused){
+audioCtx.resume().then(()=>audio.play())
+toggle.textContent="Pause"
+}else{
+audio.pause()
+toggle.textContent="Play"
+}
+}
+
+loop.onclick=()=>{
+audio.loop=!audio.loop
+loop.textContent=audio.loop?"Loop On":"Loop Off"
+}
+
+speed.onchange=()=>{
+audio.playbackRate=parseFloat(speed.value)
+}
+
+/* ===== timer ===== */
+
+function formatTime(sec){
+const m=Math.floor(sec/60)
+const s=Math.floor(sec%60)
+return`${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`
+}
+
+function updateTimer(){
+if(audio.duration){
+timer.textContent=formatTime(audio.duration-audio.currentTime)
+}
+requestAnimationFrame(updateTimer)
+}
+updateTimer()
+
+/* ===== accelerometer ===== */
+
+let tiltX=0, tiltY=0
+
+function requestMotion(){
+if(typeof DeviceMotionEvent!=="undefined" &&
+typeof DeviceMotionEvent.requestPermission==="function"){
+DeviceMotionEvent.requestPermission().then(state=>{
+if(state==="granted"){
+window.addEventListener("deviceorientation",handleOrientation)
+}
+})
+}else{
+window.addEventListener("deviceorientation",handleOrientation)
+}
+}
+
+function handleOrientation(e){
+tiltX = (e.gamma||0)/45
+tiltY = (e.beta||0)/45
+}
+
+/* ===== interaction ===== */
+
+let sparkle=0
+let holding=false
+let holdStart=0
+let colorPhase=0
+let colorSpeed=0
+
+canvas.addEventListener("pointerdown",(e)=>{
+sparkle=1
+holding=true
+holdStart=performance.now()
+requestMotion()
+})
+
+canvas.addEventListener("pointerup",()=>{
+holding=false
+colorSpeed*=0.5
+})
+
+/* ===== entropy ===== */
+
+function entropy(buf){
+let m=0
+for(let i=0;i<buf.length;i++) m+=buf[i]
+m/=buf.length
+let v=0
+for(let i=0;i<buf.length;i++){
+let d=buf[i]-m
+v+=d*d
+}
+return v/buf.length
+}
+
+/* ===== draw ===== */
+
+let phase=0
+let eSmooth=0
+
+function draw(){
+
+if(analyser){
+
+analyser.getByteTimeDomainData(buffer)
+
+const e=entropy(buffer)
+eSmooth+=(e-eSmooth)*0.05
+const en=Math.min(eSmooth/5000,1)
+
+/* hold logic */
+
+if(holding){
+const t=(performance.now()-holdStart)/1000
+if(t>0.6){
+colorSpeed += 0.002
+}
+}else{
+colorSpeed*=0.95
+}
+
+colorPhase += colorSpeed
+
+/* clear */
+
+ctx.fillStyle="rgba(0,0,0,0.12)"
+ctx.fillRect(0,0,340,340)
+
+ctx.beginPath()
+
+for(let i=0;i<buffer.length;i++){
+
+const t=i/buffer.length*2*Math.PI
+const a=(buffer[i]-128)/128
+
+const f1=3+en*2
+const f2=4+en*3
+
+const x=Math.sin(f1*t+phase)*a*150*(1+en*0.5)
+const y=Math.sin(f2*t)*a*150*(1+en*0.5)
+
+/* tilt applied */
+const px=170+x+tiltX*40
+const py=170+y+tiltY*40
+
+if(i===0) ctx.moveTo(px,py)
+else ctx.lineTo(px,py)
+
+}
+
+/* color cycling */
+
+const r = 0 + Math.sin(colorPhase)*50
+const g = 255
+const b = 100 + Math.cos(colorPhase)*80
+
+ctx.strokeStyle=`rgb(${r},${g},${b})`
+ctx.lineWidth=1.5
+ctx.stroke()
+
+/* sparkle */
+
+if(sparkle>0){
+
+for(let i=0;i<20;i++){
+ctx.fillStyle="#88ffcc"
+ctx.fillRect(
+170+Math.random()*20-10,
+170+Math.random()*20-10,
+2,2
+)
+}
+
+sparkle*=0.9
+}
+
+phase+=0.01+en*0.03
+
+}
+
+requestAnimationFrame(draw)
+
+}
+
+draw()
+
+</script>
+
+</body>
+</html>

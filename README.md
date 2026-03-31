@@ -8,6 +8,8 @@
 
 ## World-State Reconstruction
 
+[Audio Overview](https://standardgalactic.github.io/yarncrawler/introduction/)
+
 [Essay](https://standardgalactic.github.io/yarncrawler/World-State%20Reconstruction.pdf)
 
 **Yarncrawler in Action** is a research project exploring the **Yarncrawler Framework** — a model of self-repairing computation — and its connections to  
