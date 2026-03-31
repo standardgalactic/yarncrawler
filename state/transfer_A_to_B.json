@@ -1,0 +1,23 @@
+{
+  "source_domain": "chain_4_rgb_ir",
+  "target_domain": "chain_6_rgb_ir",
+
+  "sensor_map": {
+    "infrared": "infrared",
+    "geometry": "geometry",
+    "audio_entropy": "audio_entropy",
+    "flow_magnitude": "flow_magnitude",
+    "mean_entropy": "mean_entropy"
+  },
+
+  "type_map": {
+    "scalar_field": "scalar_field",
+    "flux_field": "flux_field",
+    "joint_field": "joint_field"
+  },
+
+  "topology_map": {
+    "node_scale": 1.5,
+    "edge_scale": 1.5
+  }
+}

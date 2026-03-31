@@ -1,0 +1,13 @@
+{
+  "class_id": "class_0002",
+  "members": [
+    "learned"
+  ],
+  "representative": "learned",
+  "stability_mean": 3.0,
+  "stability_var": 0.2,
+  "invariant_features": {
+    "search_depth": "minimal",
+    "entropy_regime": "low"
+  }
+}

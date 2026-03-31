@@ -1,0 +1,10 @@
+{
+  "source": "beam",
+  "target": "learned",
+  "type": "policy_transform",
+  "mapping": {
+    "beam_width": "attention_span",
+    "depth": "planning_horizon"
+  },
+  "weight": 0.7
+}

@@ -1,0 +1,9 @@
+{
+  "id": "morph_identity",
+  "name": "identity",
+  "type": "symbolic",
+  "domain": "scalar_field",
+  "codomain": "scalar_field",
+  "properties": ["identity"],
+  "definition": "lambda x: x"
+}

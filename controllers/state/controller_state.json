@@ -1,0 +1,9 @@
+{
+  "id": "learned",
+  "parameters": {
+    "attention_span": 3,
+    "planning_horizon": 2
+  },
+  "history": [],
+  "stability_score": 0.0
+}

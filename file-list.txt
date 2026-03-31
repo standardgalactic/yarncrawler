@@ -1,0 +1,216 @@
+.
+├── Constraint Before Completion.pdf
+├── Everlasting Yarncrawler Framework Development Plan
+├── LICENSE
+├── README.md
+├── World-State Reconstruction.pdf
+├── Yarncrawler Climate Response Simulation
+├── Yarncrawler Codex Recursion
+├── Yarncrawler in Action.pdf
+├── bootstrap_yarncrawler.sh
+├── common
+│   └── common_io.py
+├── controllers
+│   ├── quotient
+│   │   ├── class_0001.json
+│   │   ├── class_0002.json
+│   │   ├── classes.json
+│   │   └── representatives.json
+│   ├── registry
+│   │   ├── beam.json
+│   │   ├── dp.json
+│   │   ├── learned.json
+│   │   ├── repair.json
+│   │   └── spatial.json
+│   ├── state
+│   │   └── controller_state.json
+│   └── transformations
+│       └── beam_to_learned.json
+├── engine
+│   ├── apply_morphism.sh
+│   ├── run_class_controller.sh
+│   ├── run_controller_fixed_point.sh
+│   └── run_transfer.sh
+├── figures
+│   ├── figure-01.png
+│   ├── figure-02.png
+│   ├── figure-03.png
+│   ├── figure-04.png
+│   ├── figure-05.png
+│   ├── figure-06.png
+│   ├── figure-07.png
+│   ├── nutrients.png
+│   └── structure.png
+├── file-list.txt
+├── images
+│   ├── 4dbc8abd-c65e-4b9f-9b4e-96817e53b18f(1).jpg
+│   ├── 6ade70ab-bda2-4321-80cc-f2b7716a98f8(1).jpg
+│   ├── 70b7c2a7-60c3-4707-8ebb-b9f555eec0a6(1).jpg
+│   ├── 7a55df58-b748-4c86-83cb-e3987ba99c7e(1).jpg
+│   ├── 7a55df58-b748-4c86-83cb-e3987ba99c7e(2).jpg
+│   ├── 80ca86b5-d2d7-4efb-82b7-b1e811bcd205(1).jpg
+│   ├── 82f8c2c7-cba1-41e6-9dd9-a3aa8d41c964(1).jpg
+│   ├── 9b2206e3-5e0b-4f18-93ec-1021fd0d7d52(1).jpg
+│   ├── a7b63e36-7b4e-42cb-81b7-5a301d97abf4(1).jpg
+│   ├── ba22b93f-a96e-4ee4-9040-668dc01fee4f(1).jpg
+│   ├── f6d79bd8-e733-48c1-a945-5a84c5c5a0a5(1).jpg
+│   ├── image (89).webp
+│   ├── image (90).webp
+│   ├── image (91).webp
+│   ├── image (92).webp
+│   ├── image (93).webp
+│   ├── image (94).webp
+│   ├── image (95).webp
+│   ├── image (96).webp
+│   ├── image (97)(1).jpg
+│   └── index.html
+├── index.html
+├── logs
+│   ├── class_transforms.jsonl
+│   ├── controller_trace.jsonl
+│   └── history.jsonl
+├── manuscript
+│   ├── background
+│   │   ├── Research diversification benefits.mhtml
+│   │   ├── Research diversification benefits.txt
+│   │   ├── Semantic Weaving and Self-Repair.mhtml
+│   │   ├── Semantic Weaving and Self-Repair.txt
+│   │   ├── Yarncrawler semantic parser.mhtml
+│   │   ├── Yarncrawler semantic parser.txt
+│   │   ├── extract-text.py
+│   │   ├── get-context.sh
+│   │   ├── progress.log
+│   │   ├── source-control.html
+│   │   └── source-control.txt
+│   ├── draft-01
+│   │   ├── Yarncrawler in Action - early prototype.pdf
+│   │   ├── yarncrawler.aux
+│   │   ├── yarncrawler.bbl
+│   │   ├── yarncrawler.blg
+│   │   ├── yarncrawler.log
+│   │   ├── yarncrawler.pdf
+│   │   └── yarncrawler.tex
+│   ├── source-control.html
+│   ├── source-control.txt
+│   ├── yarncrawler.aux
+│   ├── yarncrawler.bbl
+│   ├── yarncrawler.bib
+│   ├── yarncrawler.blg
+│   ├── yarncrawler.log
+│   ├── yarncrawler.out
+│   ├── yarncrawler.pdf
+│   └── yarncrawler.tex
+├── morphisms
+│   ├── registry
+│   │   ├── entries
+│   │   │   └── morph_identity.json
+│   │   └── index.json
+│   └── transferred
+├── python
+│   ├── abstract_morphism.py
+│   ├── admit_morphism.py
+│   ├── apply_controller_transform.py
+│   ├── build_controller_classes.py
+│   ├── build_controller_quotient.py
+│   ├── canonicalize_controller.py
+│   ├── check_composable.py
+│   ├── check_fixed_point.py
+│   ├── check_functoriality.py
+│   ├── compose_morphisms.py
+│   ├── controller_distance.py
+│   ├── controller_equivalence.py
+│   ├── discover_compositions.py
+│   ├── iterate_controller.py
+│   ├── learn_controller_transform.py
+│   ├── log_class_transform.py
+│   ├── meta_controller.py
+│   ├── morphism_apply.py
+│   ├── propose_type_bridge.py
+│   ├── prune_registry.py
+│   ├── query_registry.py
+│   ├── score_rollout.py
+│   ├── select_controller_class.py
+│   ├── select_representatives.py
+│   ├── split_classes.py
+│   ├── transfer_morphism.py
+│   ├── transfer_registry_slice.py
+│   ├── type_path_resolver.py
+│   ├── update_registry_stats.py
+│   └── update_stability.py
+├── run.sh
+├── simulations
+│   ├── Stigmergic Berms.ipynb
+│   └── terra_pret_raf
+│       ├── pde_final_fields.npz
+│       └── summary.json
+├── source-control.html
+├── source-control.txt
+├── state
+│   ├── domain_A.json
+│   ├── domain_B.json
+│   ├── initial_state.json
+│   ├── topology.json
+│   ├── topology_B.json
+│   ├── transfer_A_to_B.json
+│   └── typing_rules.yaml
+└── working
+    ├── Constraint Before Completion.pdf
+    ├── Why_finishing_is_a_phase_transition.json
+    ├── Why_finishing_is_a_phase_transition.mp3
+    ├── Why_finishing_is_a_phase_transition.srt
+    ├── Why_finishing_is_a_phase_transition.tsv
+    ├── Why_finishing_is_a_phase_transition.txt
+    ├── Why_finishing_is_a_phase_transition.vtt
+    ├── World-State Reconstruction.pdf
+    ├── constraint_before_completion-draft.aux
+    ├── constraint_before_completion-draft.bib
+    ├── constraint_before_completion-draft.log
+    ├── constraint_before_completion-draft.out
+    ├── constraint_before_completion-draft.pdf
+    ├── constraint_before_completion-draft.tex
+    ├── constraint_before_completion-draft.toc
+    ├── constraint_before_completion-v2.aux
+    ├── constraint_before_completion-v2.log
+    ├── constraint_before_completion-v2.out
+    ├── constraint_before_completion-v2.pdf
+    ├── constraint_before_completion-v2.tex
+    ├── constraint_before_completion-v2.toc
+    ├── constraint_before_completion.aux
+    ├── constraint_before_completion.log
+    ├── constraint_before_completion.out
+    ├── constraint_before_completion.pdf
+    ├── constraint_before_completion.tex
+    ├── constraint_before_completion.toc
+    ├── index.html
+    ├── yarncrawler-1.aux
+    ├── yarncrawler-1.log
+    ├── yarncrawler-1.out
+    ├── yarncrawler-1.pdf
+    ├── yarncrawler-1.tex
+    ├── yarncrawler-1.toc
+    ├── yarncrawler-2.aux
+    ├── yarncrawler-2.log
+    ├── yarncrawler-2.out
+    ├── yarncrawler-2.pdf
+    ├── yarncrawler-2.tex
+    ├── yarncrawler-2.toc
+    ├── yarncrawler-3.aux
+    ├── yarncrawler-3.log
+    ├── yarncrawler-3.out
+    ├── yarncrawler-3.pdf
+    ├── yarncrawler-3.tex
+    ├── yarncrawler-3.toc
+    ├── yarncrawler-4.aux
+    ├── yarncrawler-4.log
+    ├── yarncrawler-4.out
+    ├── yarncrawler-4.pdf
+    ├── yarncrawler-4.tex
+    ├── yarncrawler-4.toc
+    ├── yarncrawler.aux
+    ├── yarncrawler.log
+    ├── yarncrawler.out
+    ├── yarncrawler.pdf
+    ├── yarncrawler.tex
+    └── yarncrawler.toc
+
+23 directories, 191 files

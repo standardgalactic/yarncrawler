@@ -1,0 +1,13 @@
+{
+  "class_id": "class_0001",
+  "members": [
+    "beam"
+  ],
+  "representative": "beam",
+  "stability_mean": 6.2,
+  "stability_var": 0.4,
+  "invariant_features": {
+    "search_depth": "low",
+    "entropy_regime": "high"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "domain_id": "chain_6_rgb_ir",
+  "topology": "state/topology_B.json",
+  "sensor_bundle": ["infrared", "geometry", "audio_entropy", "flow_magnitude", "mean_entropy"],
+  "field_types": ["scalar_field", "flux_field", "joint_field"]
+}
