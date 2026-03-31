@@ -1,0 +1,87 @@
+\contentsline {section}{\numberline {1}Introduction}{5}{section.1}%
+\contentsline {subsection}{\numberline {1.1}The Problem}{5}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}The Central Result}{5}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}The Duality}{6}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}The Consequence}{6}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Structure of the Paper}{7}{subsection.1.5}%
+\contentsline {section}{\numberline {2}The Sheaf-Variational Equivalence}{7}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Two Descriptions of the Same Object}{7}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}The Sheaf-Theoretic Account}{7}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}The Variational Account}{8}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}The Dictionary}{8}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}The Sheaf-Variational Equivalence}{9}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Consequences of the Equivalence}{10}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}The Entropy Identification}{11}{subsection.2.7}%
+\contentsline {section}{\numberline {3}The World-State Manifold and Its Symmetry Group}{12}{section.3}%
+\contentsline {section}{\numberline {4}Sensor Modalities as Projection Operators}{13}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Purpose of This Section}{13}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}The Configuration Space and Its Topology}{13}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Infrared Projection}{13}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}LiDAR Projection}{14}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}RGB/CCD Projection}{14}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Audio Projection}{15}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}Photonic Strip Projection}{15}{subsection.4.7}%
+\contentsline {subsection}{\numberline {4.8}The Completeness Proposition}{15}{subsection.4.8}%
+\contentsline {subsection}{\numberline {4.9}Degrees of Freedom Table}{16}{subsection.4.9}%
+\contentsline {subsection}{\numberline {4.10}Each Modality as a Chart}{16}{subsection.4.10}%
+\contentsline {section}{\numberline {5}The Feasible Set and Its Geometry}{16}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Quotient Structure and Identifiability Domain}{16}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Geometry of the Observation-Consistent Set}{17}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Dimensionality, Degeneracy, and Cohomology}{17}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Information Geometry of the Feasible Set}{17}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Information Volume and Closure}{18}{subsection.5.5}%
+\contentsline {subsection}{\numberline {5.6}Dynamics and Non-Convex Structure}{18}{subsection.5.6}%
+\contentsline {subsection}{\numberline {5.7}Interpretation}{18}{subsection.5.7}%
+\contentsline {section}{\numberline {6}The Consistency Operator and the Identifiability Theorem}{18}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Setup and Standing Assumptions}{18}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}The Feasible Set}{19}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}The Consistency Operator}{20}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}The Identifiability Theorem}{20}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}The Corollary on Diagnosable Failure Modes}{21}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}Why the Quotient Structure Is Not Optional}{21}{subsection.6.6}%
+\contentsline {section}{\numberline {7}Trajectory Learning and the Dynamical Admissibility Set}{21}{section.7}%
+\contentsline {subsection}{\numberline {7.1}The Central Obstruction}{21}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}The Path Space and the Stochastic Kernel}{22}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}The Deterministic Limit and Tangent Bundle Constraint}{22}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Trajectory Learning from Before/After Pairs}{23}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}The Dynamical Disambiguation Theorem}{23}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}Joint Identifiability}{23}{subsection.7.6}%
+\contentsline {section}{\numberline {8}The Inversion Layer}{25}{section.8}%
+\contentsline {section}{\numberline {9}Closure: Definition, Criteria, and Detection}{26}{section.9}%
+\contentsline {section}{\numberline {10}Deployment Scales as Feasible Set Geometry}{27}{section.10}%
+\contentsline {section}{\numberline {11}Relation to Prior Work}{28}{section.11}%
+\contentsline {section}{\numberline {12}Discussion: Closure as Epistemology}{29}{section.12}%
+\contentsline {section}{\numberline {13}Conclusion}{30}{section.13}%
+\contentsline {section}{\numberline {A}Fréchet Manifold Structure of $\mathcal {X}$}{31}{appendix.A}%
+\contentsline {section}{\numberline {B}Full Proof of the Identifiability Theorem}{31}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}Functional-Analytic Setting}{31}{subsection.B.1}%
+\contentsline {subsection}{\numberline {B.2}Existence of a Minimizer}{32}{subsection.B.2}%
+\contentsline {subsection}{\numberline {B.3}Uniqueness of the Minimizer}{32}{subsection.B.3}%
+\contentsline {subsection}{\numberline {B.4}Passage to the Quotient}{32}{subsection.B.4}%
+\contentsline {subsection}{\numberline {B.5}Full Proof of Theorem~\ref {thm:identifiability}}{32}{subsection.B.5}%
+\contentsline {section}{\numberline {C}Full Proof of the Dynamical Disambiguation Theorem}{33}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Measure-Theoretic Framework}{33}{subsection.C.1}%
+\contentsline {subsection}{\numberline {C.2}Convergence to the Deterministic Generator}{33}{subsection.C.2}%
+\contentsline {subsection}{\numberline {C.3}Stability of Trajectory Separation Under Noise}{33}{subsection.C.3}%
+\contentsline {subsection}{\numberline {C.4}Full Proof of Theorem~\ref {thm:disambiguation}}{34}{subsection.C.4}%
+\contentsline {section}{\numberline {D}Fisher Information Geometry of the Feasible Set}{34}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}Purpose and Position}{34}{subsection.D.1}%
+\contentsline {subsection}{\numberline {D.2}Observation Likelihood on the Quotient Space}{34}{subsection.D.2}%
+\contentsline {subsection}{\numberline {D.3}The Fisher Information Metric}{35}{subsection.D.3}%
+\contentsline {subsection}{\numberline {D.4}Metric Monotonicity Under Sensor Addition}{35}{subsection.D.4}%
+\contentsline {subsection}{\numberline {D.5}Restriction to the Feasible Set}{35}{subsection.D.5}%
+\contentsline {subsection}{\numberline {D.6}Dynamical Lifting of Null Directions}{36}{subsection.D.6}%
+\contentsline {subsection}{\numberline {D.7}Closure as Vanishing Information Volume}{36}{subsection.D.7}%
+\contentsline {subsection}{\numberline {D.8}Reconstruction Efficiency}{37}{subsection.D.8}%
+\contentsline {subsection}{\numberline {D.9}The Effective Metric Near Closure}{37}{subsection.D.9}%
+\contentsline {subsection}{\numberline {D.10}Entropy Identification}{37}{subsection.D.10}%
+\contentsline {section}{\numberline {E}Operator Class Library}{39}{appendix.E}%
+\contentsline {section}{\numberline {F}Implementation File Structure}{40}{appendix.F}%
+\contentsline {subsection}{\numberline {F.1}Structural Overview}{40}{subsection.F.1}%
+\contentsline {subsection}{\numberline {F.2}Core Infrastructure}{40}{subsection.F.2}%
+\contentsline {subsection}{\numberline {F.3}State Layer}{40}{subsection.F.3}%
+\contentsline {subsection}{\numberline {F.4}Log Layer}{41}{subsection.F.4}%
+\contentsline {subsection}{\numberline {F.5}Morphism Layer}{41}{subsection.F.5}%
+\contentsline {subsection}{\numberline {F.6}Controller Layer}{42}{subsection.F.6}%
+\contentsline {subsection}{\numberline {F.7}Engine Layer}{43}{subsection.F.7}%
+\contentsline {subsection}{\numberline {F.8}Correspondence to the Theoretical Framework}{43}{subsection.F.8}%

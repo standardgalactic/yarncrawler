@@ -1,0 +1,880 @@
+% ============================================================
+% Constraint Before Completion:
+% A Trajectory-First Theory of Work
+% Flyxion
+% ============================================================
+
+\documentclass[12pt, twoside]{article}
+
+% --- Encoding and Font ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{kpfonts}
+
+% --- Geometry ---
+\usepackage[
+  top=1.25in, bottom=1.25in,
+  inner=1.4in, outer=1.0in,
+  marginparwidth=0.8in
+]{geometry}
+
+% --- Microtype ---
+\usepackage[protrusion=true,expansion=false]{microtype}
+
+% --- Math ---
+\usepackage{amsmath, amsthm, amssymb, mathtools}
+
+% --- Graphics and Color ---
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{tikz-cd}
+
+% --- Headers and Footers ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE]{\small\textit{Constraint Before Completion}}
+\fancyhead[RO]{\small\textit{Flyxion}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+% --- Bibliography ---
+\usepackage[round, authoryear]{natbib}
+\bibliographystyle{plainnat}
+
+% --- Hyperref ---
+\usepackage[
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=black
+]{hyperref}
+
+% --- Section Formatting ---
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.75em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection.}{0.6em}{}
+
+% --- Theorem Environments ---
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{conclusion}[theorem]{Conclusion}
+
+% --- Custom Commands ---
+\newcommand{\Om}{\Omega}
+\newcommand{\OmC}{\Omega_{\mathcal{C}}}
+\newcommand{\Msolve}{\mathcal{M}_{\text{solution}}}
+\newcommand{\Seff}{S_{\text{eff}}}
+\newcommand{\Ltime}{L(t)}
+
+% --- Title Block ---
+\title{%
+  \vspace{-0.5in}
+  {\Large Constraint Before Completion}\\[0.4em]
+  {\normalsize A Trajectory-First Theory of Work}
+}
+\author{Flyxion}
+\date{}
+
+% ============================================================
+\begin{document}
+% ============================================================
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{1em}
+
+% ============================================================
+\begin{abstract}
+\noindent
+Completion is a phase transition in the constraint space of a system, not a property of any particular instantiation. What is commonly perceived as ``finishing''---the accumulation of polish, detail, and surface resolution---is merely the projection of an already-solved structure into an observer-accessible interface. This essay argues that work ends when entropy over structurally relevant degrees of freedom is exhausted, and that what follows is mechanical projection: deterministic, delegatable, and epistemically redundant for the agent who holds the constraint structure. Across three domains---surface painting, generative scripting, and live performance---the locus of completion migrates from artifact to generator to trajectory, revealing a unified principle. The central distinction is between internal completion, in which the constraint set has collapsed the solution manifold to a single equivalence class, and external completion, in which that manifold has been projected into perceptual space for an observer. These two notions of completion do not coincide, and much apparent disagreement about whether a work is ``done'' reduces to a failure to specify which is at stake. A formal treatment of constraint closure, entropy reduction, and temporal legibility is developed, and three worked examples---a mural, a Blender script, and a live painting set---are analyzed as concrete instantiations of the same underlying structure.
+\end{abstract}
+
+\vspace{1.5em}
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Introduction: The Ontology of the Threshold}
+% ============================================================
+
+What does it mean for a work to be finished? The question appears deceptively simple. In practice, however, disagreements about completion are among the most persistent and structurally intractable in any collaborative creative or technical enterprise. A programmer declares a system complete when its specification is fully implemented; a designer says it is nowhere near done until the interface is polished. A sculptor considers a piece finished when the form is established; a gallery assistant disagrees until it is mounted, lit, and titled. These disagreements do not resolve through negotiation about taste. They reflect a prior divergence in what kind of object ``completion'' is taken to be a property of.
+
+The central thesis of this essay is that completion is a threshold event in the constraint manifold of a system, not a gradual accumulation of surface resolution. It is not the final stroke that finishes a painting; the painting is finished at the moment when the remaining degrees of freedom have been rendered structurally irrelevant. Everything that follows---highlights, texture, citation integration, rendering passes, prose smoothing---is a traversal of an already-defined space. The traversal may be necessary for certain audiences, but it is not the work. It is the projection of the work.
+
+This claim can be stated geometrically. Let $\Omega$ be the configuration space of all possible states of a system---all possible paintings, all possible meshes, all possible arguments. A set of constraints $\mathcal{C}$ restricts the admissible states to a feasible manifold $\OmC \subset \Omega$. Within this feasible set, an equivalence relation identifies configurations that are structurally indistinguishable under the relevant identity-preserving observables. The quotient $\mathcal{M} = \OmC / {\sim}$ is the solution manifold. Completion, properly understood, occurs when this quotient has collapsed to a single equivalence class: when $|\mathcal{M}| = 1$ and the effective entropy $\Seff = \log |\mathcal{M}|$ has gone to zero. At that point, the constraint system has done its work. Any remaining activity operates within one class and cannot alter the structural identity of the result.
+
+This is what might be called the coloring-book phenomenon: a work that is structurally complete but perceptually unfinished. The coloring book is a useful image because it makes visible what is usually invisible---the constraint surface that has already been established. The outlines fix the lighting, the composition, the identity, and the spatial relations. Everything within those outlines is a fill, not a determination. The person who colors the book is not solving the problem; they are projecting a solved structure into a medium. Their choices---texture, value, saturation---exist within the equivalence class already established by whoever drew the outlines.
+
+The disagreement that typically arises around works in this state is between an agent who has access to the constraint structure and an observer who only sees the projection. The agent, operating from inside the constraint system, perceives the solution as already closed and experiences any remaining work as low-entropy execution. The observer, lacking access to the constraints, sees only the surface, and surface-incompleteness is indistinguishable from structural-incompleteness from their vantage point. This asymmetry is not a matter of preference or rigor; it is a structural feature of the epistemic situation.
+
+The essay proceeds as follows. Section~\ref{sec:geometry} develops the geometric formalism of constraint closure and solution manifolds. Section~\ref{sec:internal-external} draws the distinction between internal and external completion precisely and analyzes the projection map that connects them. Section~\ref{sec:headless} examines what happens when the locus of completion migrates from the object to the generator: the case of headless scripting and the elimination of the observation loop. Section~\ref{sec:trajectory} connects this to an event-history ontology in which identity is a property of trajectories rather than states. Section~\ref{sec:entropy-collapse} unifies the three representational layers---perceptual, spatial, generative---as a sequence of entropy collapses. Section~\ref{sec:temporal} introduces the inversion that occurs when time becomes a hard constraint, as in live performance. Section~\ref{sec:legibility} formalizes the engineering of legibility as a controlled entropy-release problem. Section~\ref{sec:denouement} analyzes the denouement operator: the phase transition in observer inference at which structural closure becomes externally visible. Section~\ref{sec:music} treats music as an external clock that offloads pacing decisions from the performer. Section~\ref{sec:asymmetry} unifies the treatment of epistemic asymmetry and collaboration friction, showing both as instances of agents operating at different loci of closure. Section~\ref{sec:relocation} corrects a potential misreading by showing that rendering is never eliminated but only relocated. Section~\ref{sec:three-modes} synthesizes three modes of completion---generator, delegated, and performed. Section~\ref{sec:implications} draws out implications for software engineering, artificial intelligence, and pedagogy. Section~\ref{sec:conclusion} closes by arguing that completion is a property of mappings, not of objects.
+
+% ============================================================
+\section{The Geometry of the Solution Space}
+\label{sec:geometry}
+% ============================================================
+
+Let $\Omega$ be a configuration space. In the most general setting this may be taken as any measurable space, though for the purposes of this essay finite or countably generated spaces suffice. A system in state $x \in \Omega$ is subject to a collection of constraints $\mathcal{C} = \{C_i\}_{i=1}^{k}$, where each $C_i : \Omega \to \{0,1\}$ is an admissibility indicator. The feasible set is
+
+\[
+\OmC = \{ x \in \Omega \mid C_i(x) = 1 \text{ for all } i \}.
+\]
+
+The constraints define the problem. They encode everything that is fixed by intent: the subject of a painting, the functional specification of a program, the argument of an essay. Different practitioners may differ in how many constraints they have imposed---a collaborator who has agreed on subject matter but not composition has fewer constraints operative than one who has settled both---and this difference in constraint density accounts for much of the apparent disagreement about whether a given state constitutes progress.
+
+Within $\OmC$, define an equivalence relation by structural identity. Two configurations $x, y \in \OmC$ are structurally equivalent, written $x \sim y$, if and only if they are indistinguishable under all identity-preserving observables. The precise content of ``identity-preserving'' depends on the domain: for paintings, it means configurations that share the same subject, composition, and lighting model; for programs, configurations that implement the same functional behavior; for arguments, configurations that establish the same logical structure. The quotient
+
+\[
+\mathcal{M} = \OmC / {\sim}
+\]
+
+is the solution manifold. Each element of $\mathcal{M}$ is an equivalence class of configurations that are, for the purposes of the work, the same thing.
+
+The effective entropy of the solution space is
+
+\[
+\Seff = \log |\mathcal{M}|.
+\]
+
+This measures the remaining structural ambiguity. A large $\Seff$ means many structurally distinct solutions are still admissible; the work is genuinely underdetermined. A small $\Seff$ means the constraints have collapsed the space to a near-unique structure. When $|\mathcal{M}| = 1$, the entropy is zero and the structure is fully determined.
+
+\begin{definition}[Constraint Closure]
+\label{def:closure}
+A system is \emph{structurally closed} if $|\mathcal{M}| = 1$, equivalently if $\Seff = 0$. All admissible configurations lie within a single equivalence class, and no further structural distinction is possible.
+\end{definition}
+
+\begin{proposition}
+\label{prop:closure-entropy}
+Constraint closure is equivalent to the exhaustion of structural entropy.
+\end{proposition}
+
+\begin{proof}
+If $|\mathcal{M}| = 1$, then for any $x, y \in \OmC$ we have $x \sim y$. No configuration in the feasible set carries a structural distinction from any other. Therefore $\Seff = \log 1 = 0$. Conversely, if $\Seff = 0$ then $|\mathcal{M}| = 1$ by definition.
+\end{proof}
+
+The claim is not that constraint closure always precedes execution in practice, but that when it does, everything that follows is a projection rather than a determination. A painter who has fixed the subject, lighting model, compositional flow, and character identity has driven the solution manifold to a single equivalence class. The remaining operations---highlights, shadows, texture, surface variation---exist within that class and do not alter the structural identity of the result. They are choices, but they are choices within a determined space. The class contains many realizations, but they are all the same painting in the relevant sense.
+
+This is why the coloring-book image is more than a metaphor. The outlines of a coloring book are a realization of the constraint set $\mathcal{C}$ in perceptual space. They make visible the boundary of the feasible set and, more importantly, the quotient structure: the fact that very many distinct colorings will produce what is recognizably the same composition. The act of coloring is a traversal within a single equivalence class. No coloring can change what the drawing is.
+
+% ============================================================
+\section{Internal versus External Completion}
+\label{sec:internal-external}
+% ============================================================
+
+Structural closure in $\mathcal{M}$ does not imply that a work is finished in any observable sense. The solution manifold may have collapsed to a single class while the representative element in $\Omega$---the actual painting, the actual document, the actual mesh---remains far from what any observer would accept as complete. The gap between these two states is the central source of disagreement about completion, and it must be made precise.
+
+Let $\pi : \Omega \to \mathcal{Y}$ be a projection map from configuration space into observable space. The space $\mathcal{Y}$ represents what can be directly perceived or accessed by an observer who lacks the constraint structure. This might be the visible surface of a canvas, the rendered output of a program, the formatted pages of an essay. The observer's judgment of completion is a function of $\pi(x)$, not of $x$ itself.
+
+\begin{definition}[Internal Completion]
+A configuration $x \in \OmC$ is \emph{internally complete} if the system is structurally closed: $|\mathcal{M}| = 1$.
+\end{definition}
+
+\begin{definition}[External Completion]
+A configuration $x \in \OmC$ is \emph{externally complete} if $\pi(x)$ satisfies the observer's recognition criteria: the projected image is sufficient for the observer to reconstruct the constraint structure without additional information.
+\end{definition}
+
+\begin{proposition}
+\label{prop:noncoincidence}
+Internal and external completion are independent. A system may be internally complete while externally incomplete, and externally complete while internally incomplete.
+\end{proposition}
+
+\begin{proof}
+For the first case, let $x, y \in \OmC$ with $x \sim y$ but $\pi(x) \neq \pi(y)$. The system is structurally closed---there is one equivalence class---but the projection distinguishes the two configurations, meaning one may satisfy the observer's criteria while the other does not. For the second case, consider a work that has been polished to a high surface finish without ever resolving its underlying constraints: $\pi(x)$ satisfies external criteria, but $|\mathcal{M}| > 1$ because the structural questions remain open. Both directions are achieved in practice.
+\end{proof}
+
+The coloring-book phenomenon is the first case: structural closure with external incompleteness. The inverse---polished surfaces over unresolved constraints---is at least as common and arguably more dangerous. A text that is smoothly written but structurally incoherent, a program that is beautifully documented but architecturally confused, a design that is visually refined but functionally underdetermined: all of these are externally complete in the superficial sense while internally open. They tend to fail at precisely the moment their constraints are tested.
+
+The gap between internal and external completion can be quantified as the residual encoding distance. Define
+
+\[
+\Delta(x) = d_{\mathcal{Y}}(\pi(x),\, \tau)
+\]
+
+where $\tau \subset \mathcal{Y}$ is the observer's recognition threshold---the set of projected configurations that the observer accepts as complete---and $d_{\mathcal{Y}}$ is a metric on observable space. The coloring-book problem is the regime in which $|\mathcal{M}| = 1$ but $\Delta(x) > 0$. Closing $\Delta$ is the work of rendering: translating internal constraint clarity into external legibility.
+
+What this formalization makes clear is that rendering is not a creative act in the same sense as constraint determination. It does not change $\mathcal{M}$; it changes $\pi(x)$ within the single equivalence class already established. The degrees of freedom available to rendering are structurally irrelevant: any choice within the class produces the same work in the sense that matters for the argument, the composition, or the geometry. What rendering produces is not structural but communicative: it reduces $\Delta$ so that an observer can access the constraint structure without reconstructing it from scratch.
+
+This distinction has direct practical implications. The question of whether to render---whether to integrate the citations, smooth the prose, add the highlights, export the mesh---is not a question about whether the work is done. It is a question about for whom it needs to be legible and whether the residual encoding distance matters for that audience. An essay shared among collaborators who share the constraint vocabulary may be complete at $\Delta > 0$; the same essay submitted to a journal requires $\Delta = 0$ by institutional convention.
+
+% ============================================================
+\section{Headless Execution and the Decoupling of the Interface}
+\label{sec:headless}
+% ============================================================
+
+The preceding analysis concerned the completion of artifacts: paintings, documents, physical objects. The argument can be extended upward. Just as the painting is internally complete when the constraint manifold collapses, a more abstract system is internally complete when the generator that produces the painting is fixed. At each level, the objects of the level below are projections of the structure above.
+
+In the domain of three-dimensional modeling, this migration is particularly concrete. A mesh---a triangulated surface in three-dimensional space---is a configuration in some space $\Omega_{\text{mesh}}$. Like a painting, it can be internally complete (structurally determined) while remaining externally incomplete (unrendered). But the mesh itself is a projection from a higher-level space: the space of generative procedures, scripts, or programs that produce meshes. Let $\Theta$ be this generator space, and let
+
+\[
+\Phi : \Theta \to \Omega_{\text{mesh}}
+\]
+
+be the realization map that takes a script to the mesh it produces. Completion now migrates to $\Theta$: a script $\theta \in \Theta$ is structurally closed if $\Phi(\theta) \in \OmC$ and all nearby scripts produce structurally equivalent meshes.
+
+\begin{definition}[Generator Closure]
+\label{def:generator-closure}
+A parameter $\theta \in \Theta$ is \emph{generator-closed} if (i) $\Phi(\theta) \in \OmC$, and (ii) for all $\theta'$ in a neighborhood of $\theta$, $\Phi(\theta') \sim \Phi(\theta)$.
+\end{definition}
+
+Condition (i) says the script produces an admissible configuration. Condition (ii) says the mapping is stable: small changes to the script do not alter the structural class of the output. A script that is generator-closed is, in the relevant sense, a fixed point of the generative process.
+
+\begin{proposition}
+\label{prop:headless}
+If a script $\theta$ is generator-closed, then the evaluation $\pi \circ \Phi(\theta)$ is not required to verify structural correctness.
+\end{proposition}
+
+\begin{proof}
+Structural correctness is defined by membership in $\OmC / {\sim}$, which is a property of $\Phi(\theta)$ in $\mathcal{M}$, not of $\pi(\Phi(\theta))$ in $\mathcal{Y}$. Since the projection $\pi$ does not alter membership in $\mathcal{M}$, evaluating it adds no information about structural correctness. Observation of the rendered output is therefore epistemically redundant given generator closure.
+\end{proof}
+
+This proposition is the theoretical grounding for headless execution. Operating a modeling environment without a display, executing scripts on a remote machine with no graphical output, running a rendering pipeline without viewing the result: these are not mere workflow optimizations. They are the natural consequence of locating completion at the generator level. The GUI is an observer-layer projection: it makes the constraint structure visible to a human eye. But if the constraint structure has already been verified at the script level---if the script is known to be generator-closed---then the visual feedback loop is redundant. It resolves uncertainty that is no longer present.
+
+There is a further implication. The migration of completion from mesh to script changes what kind of object the ``finished work'' is. A mesh is stateful: it is a particular configuration of vertices, edges, and faces, and it can be edited, deformed, or interpreted. A script is trajectory-defining: it specifies the sequence of operations that produce the configuration. The mesh answers the question ``what is this?'' while the script answers ``how does this come to be?'' Once the latter is fixed and verified as generator-closed, the former is no longer a primary object---it is an evaluation of the script under a particular set of environmental parameters.
+
+This distinction between stateful objects and trajectory-defining operators recurs throughout the analysis and will be taken up in detail in Section~\ref{sec:trajectory}. For now, it is enough to note that the headless workflow represents a final step in the decoupling of intent from observation. The system is complete at the level of the operator; the projection into observable space is available on demand but is not constitutive of the work.
+
+% ============================================================
+\section{The Script as Trajectory: Event-History Ontology}
+\label{sec:trajectory}
+% ============================================================
+
+The distinction between stateful objects and trajectory-defining operators corresponds to a deeper ontological distinction: between identity as configuration and identity as history. This distinction is not merely descriptive; it has consequences for what counts as the same work across time, what it means to modify a work, and where the relevant equivalences lie.
+
+Define a history at time $t$ as the ordered sequence of events
+
+\[
+H_t = (e_1, e_2, \dots, e_t),
+\]
+
+where each $e_i$ is an operation or transformation applied to the system. The configuration at time $t$ is the evaluation of this history:
+
+\[
+x(t) = \text{Eval}(H_t).
+\]
+
+An object, in this ontology, is not a state but an evaluation. Its identity is not its current configuration but its generative history. Two objects are the same not when they are in the same state---since any state can be reached by many histories---but when their histories, at the relevant level of description, are equivalent.
+
+\begin{definition}[Trajectory Identity]
+Two objects $x$ and $y$ are \emph{trajectory-identical} if there exists a history equivalence $H_t \equiv H_t'$ such that $\text{Eval}(H_t) \sim \text{Eval}(H_t')$ for all $t$.
+\end{definition}
+
+This definition subsumes structural identity as a special case: if two objects have the same constraint structure and the same generative history, they are the same work. But it also handles cases where the constraint structure is established incrementally: two drafts of an essay may be structurally identical even if their surface texts differ, provided they are the result of equivalent constraint-imposing operations.
+
+The script is, in the technical sense, an explicit history generator. A Blender Python script encodes the sequence of operations---create mesh, extrude faces, set material, apply modifier---that produce a three-dimensional object. It is, structurally, an append-only log of the operations that constitute the object's identity. The mesh is a terminal snapshot of this log under evaluation; the script is the log itself. In the event-history ontology, the script is more fundamental than the mesh: it is the identity of the object, not merely a way of producing it.
+
+\begin{proposition}
+\label{prop:script-primacy}
+In the event-history ontology, the script is a more complete representation of the work than the mesh it generates.
+\end{proposition}
+
+\begin{proof}
+The mesh $x = \text{Eval}(H_T)$ contains the configuration at the terminal time $T$ but does not encode the history $H_T$ that produced it. Two meshes with the same geometry may have been produced by entirely different histories---one by extrusion, one by subdivision surface, one by sculpting---and these differences are lost in the static representation. The script preserves the full history and therefore contains strictly more information about the identity of the work than the mesh alone.
+\end{proof}
+
+This has an immediate consequence for the notion of completion. If identity is constituted by history rather than state, then the work is complete when the history is closed: when the append-only log has received its final entry and no further operations are required for structural closure. The mesh is just a visualization of a closed history. Rendering it is not completing the work; it is making the closed history visible.
+
+The deeper implication is that modification---the act of going back and changing something---is not a continuation of the history but a branching of it. In a stateful-object ontology, editing the mesh is an update to a single object. In the event-history ontology, editing produces a new history that diverges from the original at the point of intervention. The two histories are different works, even if their terminal evaluations happen to be visually similar. This is why revision feels categorically different from rendering: revision modifies the identity of the work, while rendering only makes the identity visible.
+
+% ============================================================
+\section{Entropy Collapse Across Representational Layers}
+\label{sec:entropy-collapse}
+% ============================================================
+
+The analysis so far has treated completion at individual levels: the surface of a painting, the mesh of a three-dimensional object, the script that generates it. But these levels form a hierarchy, and the most important claim is not about any single level but about the structure of the hierarchy itself. Completion migrates upward across layers, and at each migration it carries the character of an entropy collapse.
+
+Consider the sequence of representational layers:
+
+\medskip
+\begin{center}
+\begin{tikzcd}[column sep=3em]
+\Theta \arrow[r, "\Phi"] & \Omega_{\text{mesh}} \arrow[r, "\rho"] & \Omega_{\text{render}} \arrow[r, "\pi"] & \mathcal{Y}
+\end{tikzcd}
+\end{center}
+\medskip
+
+Here $\Theta$ is the script space, $\Omega_{\text{mesh}}$ is the mesh configuration space, $\Omega_{\text{render}}$ is the space of rendered images, and $\mathcal{Y}$ is the observer's perceptual space. Each arrow is a projection that eliminates some degrees of freedom and preserves others. Moving left increases abstraction and constraint density; moving right increases perceptual accessibility and decreases formal specificity.
+
+The entropy at each layer is defined by the effective size of the solution manifold at that level. Define:
+
+\begin{align*}
+S_{\text{generative}} &= \log |\mathcal{M}_\Theta|, \\
+S_{\text{spatial}} &= \log |\mathcal{M}_{\text{mesh}}|, \\
+S_{\text{perceptual}} &= \log |\mathcal{M}_{\mathcal{Y}}|.
+\end{align*}
+
+\begin{proposition}
+\label{prop:entropy-ordering}
+In the regime where constraints are imposed top-down,
+\[
+S_{\text{generative}} \leq S_{\text{spatial}} \leq S_{\text{perceptual}}.
+\]
+\end{proposition}
+
+\begin{proof}
+Each projection map is surjective on its image but not injective: many scripts produce the same mesh, many meshes produce the same rendered image, many rendered images produce the same perceptual experience. Each projection therefore maps multiple distinct solutions to the same equivalence class at the lower level, increasing apparent degeneracy. The entropy at each lower level reflects the additional ambiguity introduced by the loss of information under projection.
+\end{proof}
+
+The intuitive content of this proposition is that working at a higher level of abstraction resolves more degrees of freedom per unit of cognitive effort. A decision made at the script level---say, the choice of a symmetry-preserving transformation---simultaneously determines entire families of mesh configurations and rendered images. A decision made at the perceptual level---say, the choice of a particular highlight---determines only that highlight. This asymmetry explains why agents who work top-down can achieve structural closure rapidly while those who work bottom-up spend most of their effort on choices that carry little structural weight.
+
+The sequence of entropy collapses can now be understood as follows. When a practitioner moves from painting to modeling to scripting, they are not merely changing tools. They are shifting the level at which constraints are imposed and at which structural closure is declared. Each shift upward collapses a layer of entropy that was previously left open. The mural painter who establishes lighting direction and compositional flow is collapsing perceptual entropy. The modeler who specifies topology and proportions is collapsing spatial entropy. The scripter who encodes the transformation as a deterministic procedure is collapsing generative entropy. At each level, ``done'' migrates upward to the point where the remaining variability is judged structurally trivial.
+
+\begin{definition}[Entropy Collapse Sequence]
+An entropy collapse sequence is a sequence of constraint-imposing operations across representational layers such that $S_k \to 0$ at layer $k$ before $S_{k-1}$ is addressed.
+\end{definition}
+
+The stopping rule, in this vocabulary, is: halt at the highest layer where $S_k = 0$. Everything below that layer is a projection of a solved structure and does not require the attention of the agent who imposed the constraints.
+
+% ============================================================
+\section{Temporal Constraints and the Management of Entropy}
+\label{sec:temporal}
+% ============================================================
+
+The framework developed so far assumes that time is not a variable: completion is declared when structural entropy goes to zero, and the question of when this happens relative to an external clock is not addressed. In most contexts this is adequate. An essay is complete when its argument is structurally closed, regardless of whether that takes an hour or a year. A script is complete when it is generator-closed, regardless of when the last line was written.
+
+In live performance, however, time becomes a hard constraint. The performance has a fixed duration $T$, determined externally---by the musical set, the concert program, the event schedule. The work must reach external completion at time $T$. It cannot stop early (dead time is worse than an unfinished work) and it cannot run over (the shared temporal structure of the event imposes a hard boundary). The problem is no longer when to stop but how to pace.
+
+This introduces an inversion of the standard completion problem. In the standard case, structural closure is the goal and the remaining projection is set aside. In the live performance case, structural closure is trivially achieved near the beginning---the practitioner who has done this before knows the subject, the compositional strategy, and the execution plan within the first minutes---and the problem is to engineer the passage from internal closure to external closure over the full duration $T$.
+
+Define the temporal completion problem formally as follows. Let $[0, T]$ be the performance interval. At time $t = 0$, the practitioner achieves internal closure: the constraint set $\mathcal{C}$ is fixed and $|\mathcal{M}| = 1$. The task is to schedule the projection $\pi$ across $[0, T]$ such that external closure is achieved precisely at $t = T$.
+
+Let $L : [0, T] \to [0, 1]$ be the legibility function, measuring the degree to which the projected image at time $t$ satisfies the observer's recognition criteria. The constraints on $L$ are:
+
+\[
+L(0) \approx 0, \quad \frac{dL}{dt} \geq 0, \quad L(T) = 1.
+\]
+
+The first constraint says the work begins in an unrecognized state---the first marks are not yet legible as a subject. The second says legibility increases monotonically---the work never becomes less recognizable over time. The third says legibility reaches its maximum precisely at the end of the performance.
+
+\begin{proposition}
+\label{prop:temporal-closure}
+The temporal completion problem is well-posed if and only if the practitioner achieves internal closure at $t = 0$ and the set of available projection operations is rich enough to realize any monotone trajectory from $L(0) \approx 0$ to $L(T) = 1$.
+\end{proposition}
+
+\begin{proof}
+Well-posedness requires a solution to exist. If internal closure is not achieved at $t = 0$, the practitioner must spend part of the interval $[0, T]$ on structural determination rather than pacing the projection, and the timing problem becomes underdetermined. If the projection operations are not rich enough to control $L(t)$, the trajectory cannot be shaped to meet the boundary conditions. Both conditions are necessary; together they are sufficient for the existence of a valid pacing strategy.
+\end{proof}
+
+This proposition clarifies why experience matters in live performance. The practitioner who achieves internal closure immediately---who knows at the first mark what the final work will be---has the full interval $[0, T]$ available for pacing. The practitioner who is still resolving structural questions midway through the set has less interval available and must accelerate the projection to meet the terminal condition, producing a qualitatively different trajectory. The experienced practitioner's advantage is not primarily technical but structural: they have a richer constraint vocabulary that collapses the solution manifold faster.
+
+% ============================================================
+\section{The Engineering of Legibility}
+\label{sec:legibility}
+% ============================================================
+
+Given the temporal completion problem, the central practical question is how to design the trajectory $L(t)$. The constraints say it must be monotone and reach $1$ at $T$. But within those constraints, there is a family of possible trajectories, and different trajectories produce different audience experiences. The choice of trajectory is the primary craft problem in live performance.
+
+The dominant strategy in practice is a specific shape: $L(t)$ rises slowly and approximately linearly for most of the interval, then accelerates sharply near $t = T$. This shape is achieved through information layering: low-frequency information---large forms, overall composition, dominant value structure---is projected early, while high-frequency information---identity features, specific textures, individual marks---is reserved for the final interval.
+
+\begin{definition}[Information Frequency]
+The \emph{frequency} of a projection operation is the degree to which it specifies the identity of the subject: low-frequency operations establish large-scale structure, high-frequency operations establish specific recognizable features.
+\end{definition}
+
+The strategy of large brushes before small, background before foreground, form before detail is a direct implementation of this ordering principle. Low-frequency operations contribute to $L(t)$ gradually and broadly; high-frequency operations contribute sharply and specifically. By scheduling low-frequency operations early and high-frequency operations late, the practitioner maintains a low and slowly rising $L(t)$ through most of the performance and reserves the sharp rise for the final minutes.
+
+\begin{proposition}
+\label{prop:frequency-ordering}
+A projection schedule that applies low-frequency operations before high-frequency operations maximizes the duration over which the work remains ambiguous and concentrates legibility gain at the end of the interval.
+\end{proposition}
+
+\begin{proof}
+Low-frequency operations reduce $S_{\text{perceptual}}$ slowly because they establish structure that is consistent with many possible identities. High-frequency operations reduce it rapidly because they establish specific features that are consistent with few identities. By applying low-frequency operations first, the practitioner holds $S_{\text{perceptual}}$ high---and $L(t)$ low---for most of the interval. The high-frequency operations applied near $t = T$ drive $L(t)$ to $1$ rapidly. This produces the desired trajectory shape.
+\end{proof}
+
+There is an additional constraint not captured by the legibility function alone: the audience's attention trajectory. A work that rises in legibility too quickly produces a long period of confirmed recognition at the end, which tends toward anticlimax. A work that rises too slowly produces frustration and disengagement. The optimal trajectory is one that maintains just enough ambiguity to sustain curiosity while providing enough developing structure to reward continued attention.
+
+This is the craft of the denouement, and it is not merely a matter of scheduling information. It requires managing the audience's inferential state: their evolving probability distribution over possible subjects. The practitioner must ensure that the work is consistent with several plausible interpretations through most of the interval---that it could be one thing or another---and that the final high-frequency operations resolve the ambiguity sharply and conclusively. The work should look, through most of the performance, like something else: a landscape that becomes a figure, an abstract that becomes a face. The identity must be withheld not by concealment but by genuine structural ambiguity at the perceptual level.
+
+% ============================================================
+\section{The Denouement Operator}
+\label{sec:denouement}
+% ============================================================
+
+The most important event in the temporal completion trajectory is the denouement: the moment at which the observer's inferential state collapses from high entropy to low. This is not merely a subjective experience; it is a structural event in the observer's probability space, and it can be analyzed precisely.
+
+Let $p_t$ be the observer's probability distribution over possible subjects at time $t$. Initially, $p_0$ is diffuse: many subjects are consistent with the marks so far. As the projection proceeds, $p_t$ concentrates. The observer's entropy is
+
+\[
+S_{\text{obs}}(t) = -\sum_i p_t(i) \log p_t(i).
+\]
+
+Under the monotone legibility constraint, this entropy is non-increasing:
+
+\begin{proposition}
+\label{prop:observer-entropy}
+Under a projection schedule satisfying $\frac{dL}{dt} \geq 0$, observer entropy $S_{\text{obs}}(t)$ is non-increasing.
+\end{proposition}
+
+\begin{proof}
+Legibility $L(t)$ measures recognition probability, which increases as the observer's distribution concentrates on the correct subject. Concentration of $p_t$ directly reduces $S_{\text{obs}}(t)$ by the definition of entropy. Since $L(t)$ is non-decreasing by assumption, $S_{\text{obs}}(t)$ is non-increasing.
+\end{proof}
+
+The denouement occurs at time $t_c$ when this entropy undergoes a rapid transition:
+
+\begin{definition}[Denouement Time]
+The \emph{denouement time} $t_c \in [0, T]$ is the time at which
+\[
+S_{\text{obs}}(t_c - \varepsilon) \gg 0 \quad \text{and} \quad S_{\text{obs}}(t_c + \varepsilon) \approx 0
+\]
+for small $\varepsilon > 0$.
+\end{definition}
+
+In terms of the legibility function, this corresponds to a rapid transition: $L(t_c - \varepsilon) \ll 1$ and $L(t_c + \varepsilon) \approx 1$. The denouement is a phase transition in observer inference: the system passes rapidly from a high-entropy state (many subjects are plausible) to a low-entropy state (the subject is identified).
+
+\begin{remark}
+The denouement is experienced phenomenologically as recognition: the moment at which the ambiguous marks snap into a coherent identity. This experience is sharp precisely because the underlying transition is rapid---a small number of high-frequency marks drive the observer's distribution to concentrate on a single subject.
+\end{remark}
+
+In the live painting context, the practitioner engineers $t_c \approx T$: the denouement is designed to coincide with the end of the performance. This requires careful management of the marks withheld until the final interval. The specific features that establish subject identity---the eyes of a portrait, the distinctive outline of a building, the gesture of a figure---are applied last, after the large-scale structure has been established. Their effect on $S_{\text{obs}}$ is disproportionate: a few marks change everything.
+
+The coincidence of $t_c$ and $T$ produces what can be called temporal closure: the ending of the performance and the completion of recognition are simultaneous events. The audience does not experience a finished work and then a silence; they experience recognition and silence as a single event. This temporal fusion is what distinguishes a live performance from a painting simply done in public. The work is not exhibited; it is made to end precisely when the performance ends.
+
+The denouement operator $D$ can be defined abstractly as the minimal set of high-frequency marks required to drive $S_{\text{obs}}$ to zero:
+
+\[
+D = \arg\min_{M} \{ |M| : S_{\text{obs}}(t_c^+ \mid M) \approx 0 \},
+\]
+
+where $M$ ranges over subsets of available marks and $t_c^+$ denotes the state immediately after applying $M$. The practitioner's task is to identify $D$ in advance and withhold it until the appropriate moment. This is why the planning of a live painting is simple and rapid---a few seconds to identify $D$ and the broad sequence---while the execution requires the full duration of the set.
+
+% ============================================================
+\section{Music as External Clock}
+\label{sec:music}
+% ============================================================
+
+The live painting context introduces an external temporal structure that interacts with the completion problem in a specific and practically significant way. The music that accompanies the performance is not merely ambience; it is a pacing constraint that offloads a significant class of decisions from the practitioner to the environment.
+
+In the absence of external structure, the practitioner must make continuous decisions about the velocity of projection: how quickly to move from large forms to small details, when to pause, when to accelerate. These decisions are both cognitively demanding and consequential---a trajectory that accelerates too early produces premature legibility, while one that accelerates too late is at risk of not reaching $L(T) = 1$.
+
+Music functions as a shared temporal reference that eliminates this decision class. The practitioner synchronizes the velocity of the projection to the music's rhythmic and dynamic structure, using the music as a clock that determines not just the overall duration but the local pacing at each moment. When the music swells, the projection accelerates; when it sustains, the projection can dwell in a region. The pacing decision is replaced by a pacing response.
+
+\begin{definition}[External Clock]
+An \emph{external clock} for a performance of duration $T$ is a shared temporal signal $\mu : [0, T] \to \mathbb{R}^+$ that provides a locally agreed-upon velocity reference for the projection.
+\end{definition}
+
+The music serves as an external clock in this sense. It provides both global structure---the total duration is known in advance---and local structure---the dynamic and rhythmic variation at each moment signals the appropriate velocity of the projection. The practitioner does not need to maintain an internal model of elapsed time or decide how fast to move; these are offloaded to the auditory environment.
+
+\begin{proposition}
+\label{prop:music-clock}
+An external clock reduces the cognitive overhead of the temporal completion problem by eliminating the need for explicit velocity management.
+\end{proposition}
+
+\begin{proof}
+The temporal completion problem requires the practitioner to solve for a trajectory $L(t)$ satisfying the boundary and monotonicity conditions. Without an external clock, this requires continuous internal tracking of $t$, remaining duration $T - t$, and current legibility $L(t)$. With an external clock $\mu$, the practitioner can couple the projection velocity to $\mu(t)$, delegating the timing function to the shared signal. The internal tracking requirement is reduced to a reference check: is the projection ahead of, behind, or synchronized with the external signal?
+\end{proof}
+
+There is an additional benefit beyond cognitive offloading. The music is perceived by both the practitioner and the audience simultaneously. By coupling the projection to the music, the practitioner ensures that the pacing of the work is experienced as continuous with the pacing of the performance as a whole. The audience, attending to both music and emerging image, experiences them as co-evolving. The denouement of the image---the moment of recognition---is prepared for by the musical climax or resolution toward which the set has been building. The two temporal closures reinforce each other.
+
+This is also why the physical positioning of the practitioner matters. By staying out of the audience's line of sight while mixing and preparing, and by ensuring that the work-in-progress rather than the work-being-made is what the audience sees, the practitioner maintains the illusion that the image is developing autonomously---emerging in response to the music rather than being applied by a person following a plan. This sustains the audience's experience of the work as an event rather than a demonstration.
+
+% ============================================================
+\section{Epistemic Asymmetry and Collaboration Friction}
+\label{sec:asymmetry}
+% ============================================================
+
+The disagreements that arise in collaborative creative work are, as a structural matter, disagreements about what kind of object completion is predicated of. The analysis developed in the preceding sections provides a precise vocabulary for these disagreements, and it is worth drawing the implications explicitly.
+
+Consider the general case. Two agents---a creator and an observer, or two creators---are working on the same project. The creator has access to the constraint set $\mathcal{C}$ and therefore knows when $|\mathcal{M}| = 1$: they can detect internal closure. The observer has access only to the projected configuration $\pi(x)$ and must infer structural closure from external evidence. Since $\pi$ is not injective---many structurally distinct configurations project to perceptually similar states, and structurally equivalent configurations may project to perceptually different ones---the observer's inference is unreliable. They may perceive incompleteness where there is structural closure, and closure where there is not.
+
+\begin{definition}[Epistemic Asymmetry]
+\emph{Epistemic asymmetry} between a creator and an observer arises when the creator has access to $\mathcal{M}$ directly and the observer has access only to $\pi(x)$. The asymmetry is the informational gap between $\mathcal{M}$ and $\pi^{-1}(\pi(x))$.
+\end{definition}
+
+This asymmetry is irreducible without communication. The observer cannot recover $\mathcal{M}$ from $\pi(x)$ alone without additional information about the constraint structure. The creator can reduce the asymmetry by providing that information---through explanation, documentation, or completing the projection to $\Delta = 0$---but they cannot eliminate it from the observer's side without either revealing the constraints explicitly or rendering the work to full external completion.
+
+The epistemic asymmetry between creator and observer is the global case. The collaboration friction case is a specific and structurally distinct instance in which both parties are creators, each with their own constraint vocabulary, operating at different levels of closure.
+
+Return to the pottery studio. The ceramicist has thrown a pot: the form is established, the walls are even, the profile is decided. In the ceramicist's constraint vocabulary, the substrate is closed---it is ready to receive surface treatment. She says: move on to the next one. The painter has been applying painted figures to the surface. In the painter's constraint vocabulary, the figure is not yet closed---the lighting model is established, the composition is fixed, but the rendering has not projected these internal closures into perceptual legibility. He says: not yet done.
+
+This is not a disagreement between a creator and an observer. Both parties are creators. The disagreement is between two different loci of closure: the ceramicist is working at the level of substrate completion, while the painter is working at the level of perceptual projection. Each is correct from within their own constraint vocabulary. The friction is not about differing standards for what counts as finished; it is about differing levels of the representational hierarchy at which closure is being tracked.
+
+\begin{definition}[Collaboration Friction]
+\emph{Collaboration friction} between two creators arises when they operate at different levels of the entropy collapse sequence, such that one has declared closure at level $k$ while the other has not yet closed at level $k-1$.
+\end{definition}
+
+\begin{proposition}
+\label{prop:friction}
+Collaboration friction cannot be resolved by appeal to shared aesthetic standards. It requires either explicit alignment on the target closure level or a workflow partition that insulates each creator's closure criterion from the other's.
+\end{proposition}
+
+\begin{proof}
+The friction arises from a structural mismatch in which level of the representational hierarchy is being treated as primary. Appeals to shared aesthetic standards address the question of what constitutes a well-executed projection, not the question of which level the projection is being evaluated at. Only explicit agreement on the target level---or a partition of labor that assigns each level to a single creator---can eliminate the mismatch.
+\end{proof}
+
+The mural example instantiates this perfectly. The ceramicist's standard---``ready for the next substrate''---is a level-$k$ closure criterion. The painter's standard---``perceptually projected''---is a level-$(k-1)$ criterion. The disagreement is not about quality but about level. Once this is understood, the resolution is simple: establish in advance which level the collaboration tracks as its shared completion criterion, or divide the work so that the ceramicist's criterion governs the substrate phase and the painter's criterion governs the surface phase without either being imposed on the other.
+
+% ============================================================
+\section{The Relocation of Rendering}
+\label{sec:relocation}
+% ============================================================
+
+A potential misreading of the entropy collapse framework is that rendering disappears as completion migrates upward. If completion is declared at the generator level, does the projection from script to mesh to render become irrelevant? The answer is no, and this requires explicit correction.
+
+Rendering never disappears. It relocates. Each time the locus of completion shifts upward by one level---from perceptual to spatial to generative---the rendering work that was previously performed at that level does not cease to exist; it is transformed into configuration and parameterization work at the level above.
+
+The painter who stops at the constraint-closure level and does not apply highlights is not eliminating the work of surface rendering. They are relocating it: either to a collaborator who will complete the surface, or to a future session, or to the imagination of a viewer who reconstructs the finished surface from the established constraints. The work exists; it is simply no longer the current agent's responsibility.
+
+More precisely, each level of the hierarchy has its own rendering problem. At the script level, rendering consists of parameter selection: the choice of resolution, material properties, randomness seeds, export formats, and pipeline configurations. These are not decisions that the script makes automatically; they must be specified somewhere. When completion migrates to the script level, these choices migrate with it. The practitioner who declares closure at the script level is implicitly declaring that these parameterization choices are either irrelevant or already determined. If they are not, the closure is incomplete.
+
+\begin{proposition}
+\label{prop:relocation}
+Closure at level $k$ creates an open rendering problem at level $k+1$: the parameterization required to project from level $k$ to level $k-1$.
+\end{proposition}
+
+\begin{proof}
+A generator-closed script $\theta$ specifies the transformation $\Phi : \Theta \to \Omega_{\text{mesh}}$ but does not specify the downstream projections $\rho : \Omega_{\text{mesh}} \to \Omega_{\text{render}}$ or $\pi : \Omega_{\text{render}} \to \mathcal{Y}$. These require additional parameterization---materials, lighting, camera position, export format---that is not determined by $\theta$. Closure at the generator level therefore leaves open a family of projection choices, each of which constitutes a rendering problem at the next level.
+\end{proof}
+
+This proposition has a corrective function. The claim that completion migrates upward does not mean that the lower levels become trivial in an absolute sense; it means they become trivial relative to the constraint structure that has already been fixed. The highlights on a painting are trivial relative to the established composition and lighting model. The export format for a mesh is trivial relative to the established geometry. But ``trivial'' here means ``structurally irrelevant,'' not ``requiring no effort.'' The effort of rendering is real; it is simply not the kind of effort that alters the structural identity of the work.
+
+The clearest formulation is this: rendering is the work of closing $\Delta$, the residual encoding distance between the current projected state and the observer's recognition threshold. This work is real and audience-dependent. It does not disappear because structural closure has been achieved; it becomes the work that remains, the projection of a solved problem into a form that communicates itself without requiring reconstruction.
+
+% ============================================================
+\section{Three Modes of Completion}
+\label{sec:three-modes}
+% ============================================================
+
+The analysis can now be synthesized into three distinct modes of completion, each corresponding to a different relationship between internal closure, external projection, and the deployment of time.
+
+\paragraph{Generator Mode.}
+In generator mode, the practitioner declares completion at the level of structural closure: $|\mathcal{M}| = 1$. The projection from $\mathcal{M}$ into $\mathcal{Y}$ is not performed, or is delegated to a future agent. The work exists as a solved structure: a closed constraint set, a fixed argument, a generator-closed script. The residual encoding distance $\Delta$ is positive but treated as irrelevant relative to the audience or context. This is the mode of the bpy script, the structurally complete but unpolished essay, the established-but-unrendered composition. It is the appropriate mode when the audience can execute the projection themselves or when the work is private.
+
+\paragraph{Delegated Mode.}
+In delegated mode, the practitioner establishes structural closure and makes it explicit enough for a second agent to perform the projection. The coloring book is the paradigm case: the outlines encode the constraint set in perceptual space, making the remaining degrees of freedom visible and accessible. The work is split at the closure boundary: one agent determines, another projects. This requires a richer interface than generator mode---the constraint set must be communicated, not merely held---but it does not require the practitioner to perform the projection themselves.
+
+\paragraph{Performed Mode.}
+In performed mode, the practitioner achieves internal closure early and then stages the projection for an audience across a fixed temporal interval. The projection is real---actual marks are applied, actual information is released---but its timing is managed to produce a specific audience experience. The structural solution is already determined; the performance is the controlled revelation of that solution. This is the mode of live painting, live coding, and certain forms of improvisational music. It requires the practitioner to hold two timelines simultaneously: the internal timeline, on which everything is already decided, and the external timeline, on which the decision is only now becoming visible.
+
+\begin{theorem}
+\label{thm:three-modes}
+Generator, delegated, and performed modes are distinct instantiations of a single underlying structure: completion as constraint closure, with different policies for the management of the residual encoding distance $\Delta$.
+\end{theorem}
+
+\begin{proof}
+In all three modes, internal completion is defined identically as $|\mathcal{M}| = 1$. The modes differ only in how $\Delta$ is handled. Generator mode leaves $\Delta > 0$ and makes no claim about closing it. Delegated mode reduces $\Delta$ to the threshold required for a second agent to execute the projection. Performed mode schedules the reduction of $\Delta$ over a fixed interval $[0, T]$, engineering a specific trajectory for the observer's epistemic state. Since the underlying completion condition is identical in all three cases, and the modes differ only in their policies for the residual encoding distance, they are instantiations of a common structure.
+\end{proof}
+
+% ============================================================
+\section{Implications}
+\label{sec:implications}
+% ============================================================
+
+The framework developed here has implications beyond its immediate domain. Three areas deserve explicit attention: software engineering, artificial intelligence, and pedagogy.
+
+In software engineering, the distinction between internal and external completion maps directly onto the distinction between specification and implementation. A system is internally complete when its specification is closed---when the design decisions have been made and the remaining implementation is deterministic projection. External completion requires that the implemented system be sufficiently legible for operators, users, and future maintainers to interact with it without reconstructing the specification. Many software failures, particularly at scale, are failures of external completion in systems that achieved internal closure early: the architecture was sound but insufficiently communicated. The framework suggests that the appropriate investment is not more implementation but more projection-work---documentation, interface design, observability tooling---all of which are forms of $\Delta$-reduction.
+
+In artificial intelligence, the distinction between generator and output is structurally analogous to the distinction between model and sample. A trained model is, in the relevant sense, a generator-closed system: it specifies a distribution over outputs, and any particular output is an evaluation of that generator under specific inputs and sampling parameters. The question of whether a model is ``done'' is not answered by examining its outputs; it is answered by examining the constraint structure---the training objective, the architecture, the data distribution---that defines the model's solution manifold. Much of the apparent controversy about AI completion---when is a model ready for deployment?---is a confusion between generator closure (does the model's constraint structure satisfy the requirements?) and external completion (does any particular output satisfy the requirements?). These are different questions and require different evaluations.
+
+In pedagogy, the framework inverts the standard instructional sequence. Conventional instruction proceeds from surface to structure: students are taught to produce correct outputs before they are taught the constraint structures that make those outputs correct. This is external-completion-first pedagogy. The trajectory-first approach would proceed in the opposite direction: establish the constraint vocabulary first, then treat output production as projection. Students who understand the constraint structure of an argument can write the argument; students who have been trained to produce argument-shaped texts without understanding the constraints cannot reconstruct the structure from their outputs. The difference is between knowing $\mathcal{M}$ and having learned to sample from $\pi^{-1}(\tau)$.
+
+% ============================================================
+\section{Conclusion: Completion as a Property of Mappings}
+\label{sec:conclusion}
+% ============================================================
+
+The central argument can now be stated in its final form. Completion is not a property of objects. It is a property of mappings: specifically, of the mapping $\Phi : \Theta \to \mathcal{M}$ from the generator space to the solution manifold. A work is complete when that mapping is fixed and the solution manifold has collapsed to a single equivalence class. The objects produced by evaluating the mapping---the rendered image, the formatted document, the exported mesh---are projections of the completed mapping, not the completion itself.
+
+This reframing dissolves several persistent confusions. The confusion between polish and structure becomes legible: polishing is $\Delta$-reduction, not $\mathcal{M}$-determination. The confusion between a finished work and a displayed work becomes legible: the work is finished when $|\mathcal{M}| = 1$, regardless of whether it has been projected into any observer's perceptual space. The confusion between revision and rendering becomes legible: revision alters the history that constitutes the work's identity, while rendering projects an existing history into a new perceptual state.
+
+The three modes of completion---generator, delegated, and performed---are not different standards for when a work is finished. They are different policies for what to do with $\Delta$ once internal closure has been achieved. The generator mode treats $\Delta$ as the audience's problem. The delegated mode reduces $\Delta$ to the threshold required for transfer. The performed mode schedules the reduction of $\Delta$ as a temporal event.
+
+Across all three modes, the practitioner's primary task is the same: impose constraints, collapse the solution manifold, drive $|\mathcal{M}|$ to 1. Everything else---rendering, polishing, performing, delegating---is projection. The work is the mapping. The objects are its evaluations.
+
+The coloring-book image that opened the analysis now reveals its full depth. The outlines of a coloring book are not an incomplete painting; they are a complete specification of a painting in a medium that makes the constraint structure directly visible. The person who fills in the colors is not finishing the work; they are rendering the specification into a richer perceptual register. The work was done when the last outline was drawn. What follows is the projection of a solved problem.
+
+% ============================================================
+\appendix
+\renewcommand{\thesection}{\Alph{section}}
+% ============================================================
+
+% ============================================================
+\section{Constraint Closure and Solution Manifolds}
+\label{app:closure}
+% ============================================================
+
+\subsection{State Space and Constraints}
+
+Let $\Omega$ be a configuration space (finite or measurable), and let $\mathcal{C} = \{C_i\}_{i=1}^k$ be a collection of constraints, where each
+\[
+C_i : \Omega \to \{0,1\}
+\]
+is an admissibility indicator. The feasible set is
+\[
+\OmC = \{ x \in \Omega \mid C_i(x) = 1 \text{ for all } i \}.
+\]
+
+\subsection{Structural Equivalence}
+
+Define an equivalence relation $\sim$ on $\OmC$ by
+\[
+x \sim y \iff x \text{ and } y \text{ are indistinguishable under all identity-preserving observables.}
+\]
+
+The solution manifold is
+\[
+\mathcal{M} = \OmC / {\sim}.
+\]
+
+\subsection{Formal Definition}
+
+\begin{definition}[Constraint Closure]
+A system is \emph{structurally closed} if $|\mathcal{M}| = 1$: all admissible configurations lie within a single equivalence class.
+\end{definition}
+
+\subsection{Entropy of the Solution Set}
+
+Define
+\[
+\Seff = \log |\mathcal{M}|.
+\]
+
+\begin{proposition}
+Constraint closure is equivalent to $\Seff = 0$.
+\end{proposition}
+
+\begin{proof}
+$|\mathcal{M}| = 1 \iff \log |\mathcal{M}| = 0 \iff \Seff = 0$. \qed
+\end{proof}
+
+\subsection{Partial Order on Constraint Density}
+
+Let $\mathcal{C}' \supset \mathcal{C}$ be a strictly richer constraint set. Then $\OmC['] \subseteq \OmC$, and $|\mathcal{M}'| \leq |\mathcal{M}|$. Constraint addition is monotone in the reduction of the solution manifold.
+
+\begin{corollary}
+Adding constraints cannot increase $\Seff$. Structural closure is achieved no later than it would be under any subset of the constraint set.
+\end{corollary}
+
+% ============================================================
+\section{Projection and External Completion}
+\label{app:projection}
+% ============================================================
+
+\subsection{The Projection Map}
+
+Let $\pi : \Omega \to \mathcal{Y}$ be a map from configuration space to observable space. Define the observer's recognition threshold as a subset $\tau \subset \mathcal{Y}$.
+
+\begin{definition}[External Completion]
+A configuration $x \in \Omega$ is \emph{externally complete} if $\pi(x) \in \tau$.
+\end{definition}
+
+\subsection{Non-Invariance Under Structural Equivalence}
+
+\begin{proposition}
+External completion is not invariant under $\sim$.
+\end{proposition}
+
+\begin{proof}
+Let $x \sim y$ but $\pi(x) \neq \pi(y)$. This is possible whenever $\pi$ is not constant on equivalence classes---which is generic, since $\pi$ is defined on $\Omega$, not on $\mathcal{M}$. Then $\pi(x) \in \tau$ does not imply $\pi(y) \in \tau$. External completion therefore depends on the choice of representative within the equivalence class, not on the class itself.
+\end{proof}
+
+\subsection{Residual Encoding Distance}
+
+Define
+\[
+\Delta(x) = \inf_{y \in \tau} d_{\mathcal{Y}}(\pi(x), y)
+\]
+
+where $d_{\mathcal{Y}}$ is a metric on observable space. The coloring-book regime is $|\mathcal{M}| = 1$ with $\Delta(x) > 0$. Rendering is any operation that reduces $\Delta$ while leaving the equivalence class $[x] \in \mathcal{M}$ unchanged.
+
+\begin{proposition}
+A rendering operation $r : \Omega \to \Omega$ satisfying $r(x) \sim x$ and $\Delta(r(x)) < \Delta(x)$ exists whenever $\Delta(x) > 0$ and the projection $\pi$ is continuous.
+\end{proposition}
+
+\begin{proof}
+By continuity of $\pi$ and the definition of $\Delta$, there exists a path in $\pi^{-1}(\mathcal{Y})$ from $\pi(x)$ toward $\tau$. A small step along this path reduces $\Delta$. If the step can be taken while remaining in $[x]$ under $\sim$---which holds when the equivalence class has positive measure in the direction of $\tau$---the rendering operation exists.
+\end{proof}
+
+% ============================================================
+\section{Generative Mappings and Headless Closure}
+\label{app:generator}
+% ============================================================
+
+\subsection{Generator Space}
+
+Let $\Theta$ be a parameter space (script space, model space, or program space), and let
+\[
+\Phi : \Theta \to \Omega
+\]
+be a realization map. The induced constraint set on $\Theta$ is
+\[
+\Theta_{\mathcal{C}} = \{ \theta \in \Theta \mid \Phi(\theta) \in \OmC \}.
+\]
+
+\begin{definition}[Generator Closure]
+$\theta \in \Theta$ is \emph{generator-closed} if $\theta \in \Theta_{\mathcal{C}}$ and there exists a neighborhood $U \ni \theta$ such that $\Phi(\theta') \sim \Phi(\theta)$ for all $\theta' \in U$.
+\end{definition}
+
+\subsection{Headless Execution}
+
+\begin{proposition}
+If $\theta$ is generator-closed, then $\pi \circ \Phi(\theta)$ is not required to verify structural correctness.
+\end{proposition}
+
+\begin{proof}
+Structural correctness is membership in $\mathcal{M} = \OmC / {\sim}$. This is determined by $\Phi(\theta) \in \OmC$ and $[\Phi(\theta)] \in \mathcal{M}$, both of which are properties of $\theta$ that can be verified without evaluating $\pi$. Since $\pi$ maps $\Omega \to \mathcal{Y}$ and correctness lives in $\mathcal{M}$, the composition $\pi \circ \Phi$ adds no information relevant to correctness.
+\end{proof}
+
+\subsection{Hierarchy of Generator Spaces}
+
+The generator space $\Theta$ is itself a configuration space, and can be subject to higher-order constraints. Let $\Psi : \Xi \to \Theta$ be a meta-generator. Then generator closure at $\Theta$ is a constraint on $\Xi$, and the hierarchy extends indefinitely upward. At each level, ``done'' is the condition $|\mathcal{M}_k| = 1$ for the solution manifold at that level.
+
+% ============================================================
+\section{Temporal Legibility and Information Release}
+\label{app:legibility}
+% ============================================================
+
+\subsection{Legibility as Cumulative Recognition}
+
+Let $L : [0, T] \to [0, 1]$ be defined as
+\[
+L(t) = \Pr[\text{observer correctly identifies subject at time } t].
+\]
+
+\begin{definition}
+$L$ is a \emph{valid legibility trajectory} if $\frac{dL}{dt} \geq 0$ and $L(T) = 1$.
+\end{definition}
+
+\subsection{Observer Entropy}
+
+Let $p_t$ be the observer's distribution over possible subjects. Then
+\[
+S_{\text{obs}}(t) = -\sum_i p_t(i) \log p_t(i).
+\]
+
+\begin{proposition}
+Under a valid legibility trajectory, $S_{\text{obs}}$ is non-increasing.
+\end{proposition}
+
+\begin{proof}
+$L(t) = \sum_i \mathbf{1}[i = \text{true subject}] \cdot p_t(i) = p_t(\text{true subject})$. If $L$ is non-decreasing, the probability mass on the correct subject is non-decreasing, which requires concentration of $p_t$. Concentration of $p_t$ implies $\frac{d}{dt} S_{\text{obs}}(t) \leq 0$.
+\end{proof}
+
+\subsection{Denouement Threshold}
+
+\begin{definition}[Denouement Time]
+$t_c \in [0, T]$ is a \emph{denouement time} if
+\[
+\lim_{\varepsilon \to 0^+} \frac{L(t_c + \varepsilon) - L(t_c - \varepsilon)}{\varepsilon} = \max_{t \in [0,T]} \frac{dL}{dt}.
+\]
+\end{definition}
+
+The denouement time is the time of maximum rate of recognition gain---the inflection point of the legibility trajectory at which the observer's entropy collapses most rapidly.
+
+\begin{corollary}
+A live performance is optimally structured when $t_c = T$: the maximum rate of recognition gain coincides with the end of the performance.
+\end{corollary}
+
+% ============================================================
+\section{Worked Example: Mural as Manifold Collapse}
+\label{app:mural}
+% ============================================================
+
+Let $\Omega_{\text{mural}}$ be the space of all possible paintings on a given surface. Define constraints:
+
+\begin{align*}
+C_1 &: \text{lighting direction is fixed (upper left, angle } \alpha_0\text{)}, \\
+C_2 &: \text{compositional flow is established (foreground figure, right-of-center)}, \\
+C_3 &: \text{subject identity is fixed (dragon, specific pose)}.
+\end{align*}
+
+The feasible set $\OmC \subset \Omega_{\text{mural}}$ is the collection of all paintings consistent with these three constraints. The equivalence relation $\sim$ identifies paintings that share subject, composition, and lighting model but differ in surface treatment (texture, stroke character, value range within the lighting model).
+
+The solution manifold $\mathcal{M} = \OmC / {\sim}$ contains a single equivalence class: given $C_1$, $C_2$, and $C_3$ jointly, there is one painting---in the structurally relevant sense---and the remaining variation is non-structural.
+
+The residual degrees of freedom are:
+\[
+\{ \text{highlight placement, shadow softness, texture character, stroke variation} \}.
+\]
+
+Each of these operates within $[x]$ and does not change $[x]$. Rendering operations that vary these parameters are traversals within the single equivalence class.
+
+\begin{conclusion}
+The mural is structurally complete at the moment $C_1 \wedge C_2 \wedge C_3$ is satisfied. All subsequent work is projection within a single equivalence class. The work is a coloring book.
+\end{conclusion}
+
+% ============================================================
+\section{Worked Example: bpy Script as Generator}
+\label{app:bpy}
+% ============================================================
+
+Let $\Theta$ be the space of Blender Python scripts, and let $\Phi : \Theta \to \Omega_{\text{mesh}}$ be the evaluation map. A script $\theta \in \Theta$ specifies a sequence of mesh operations: vertex creation, extrusion, subdivision, material assignment, transformation.
+
+The structural constraints on the target mesh are:
+\begin{align*}
+C_1 &: \text{topology satisfies the target manifold type}, \\
+C_2 &: \text{proportions are within specified tolerances}, \\
+C_3 &: \text{spatial relations between components are fixed}.
+\end{align*}
+
+A script $\theta$ is generator-closed if $\Phi(\theta) \in \OmC$ and small perturbations to $\theta$---changing a loop range, adjusting a transformation parameter---produce meshes in the same equivalence class.
+
+The GUI, the render preview, and the viewport display are all evaluations of $\pi \circ \Phi(\theta)$: they project the mesh into perceptual space. Once generator closure is verified---by checking the script against the constraints, not by inspecting the viewport---these projections are redundant for correctness purposes.
+
+\begin{conclusion}
+Closure occurs in $\Theta$. The mesh $\Phi(\theta)$ is an evaluation of the closed generator. Headless execution is the natural workflow for a generator-closed script.
+\end{conclusion}
+
+% ============================================================
+\section{Worked Example: Live Painting as Controlled Trajectory}
+\label{app:live}
+% ============================================================
+
+Let $H_T = (e_1, \dots, e_T)$ be the sequence of brush strokes in a live painting over performance interval $[0, T]$. Define
+\[
+x(t) = \text{Eval}(H_t).
+\]
+
+Internal closure is achieved at $t \approx 0$: within the first minutes, the practitioner has established subject, composition, and execution strategy. Formally, $|\mathcal{M}| = 1$ at the outset.
+
+The problem is to design $H_T$ such that:
+\[
+L(0) \approx 0, \quad \frac{dL}{dt} \geq 0, \quad L(T) = 1, \quad t_c \approx T.
+\]
+
+Strategy: order strokes by frequency.
+
+Let $F(e_i)$ denote the frequency of stroke $e_i$---its contribution to observer entropy reduction. A valid trajectory satisfies
+\[
+i < j \implies F(e_i) \leq F(e_j),
+\]
+
+i.e., strokes are applied in non-decreasing frequency order: background washes before compositional structure before identity marks.
+
+The denouement operator $D$ is the set of high-frequency strokes:
+\[
+D = \{ e_i : F(e_i) > F_{\text{threshold}} \},
+\]
+
+reserved for the interval $[T - \varepsilon, T]$.
+
+\begin{proposition}
+Under this strategy, $t_c \approx T$ and the observer's entropy remains high until the final interval.
+\end{proposition}
+
+\begin{proof}
+Low-frequency strokes applied during $[0, T - \varepsilon]$ build structure consistent with multiple subjects, holding $S_{\text{obs}}(t)$ high. The high-frequency strokes in $D$ applied during $[T - \varepsilon, T]$ specify the subject uniquely, driving $S_{\text{obs}}$ to zero. The maximum rate of recognition gain therefore occurs in $[T - \varepsilon, T]$, placing $t_c \approx T$.
+\end{proof}
+
+\begin{conclusion}
+The live painting is a staged projection of a pre-solved system. Structural closure precedes the performance; the performance is the controlled revelation of that closure to an audience across a shared temporal structure.
+\end{conclusion}
+
+% ============================================================
+% Bibliography
+% ============================================================
+
+\newpage
+\bibliography{constraint_before_completion}
+
+\end{document}

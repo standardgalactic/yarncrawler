@@ -1,0 +1,61 @@
+\contentsline {section}{\numberline {1}Introduction}{5}{section.1}%
+\contentsline {subsection}{\numberline {1.1}The Problem}{5}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}The Central Result}{5}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}The Duality}{6}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}The Consequence}{6}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Structure of the Paper}{7}{subsection.1.5}%
+\contentsline {section}{\numberline {2}The Sheaf-Variational Equivalence}{7}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Two Descriptions of the Same Object}{7}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}The Sheaf-Theoretic Account}{7}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}The Variational Account}{8}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}The Dictionary}{8}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}The Sheaf-Variational Equivalence}{9}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Consequences of the Equivalence}{10}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}The Entropy Identification}{11}{subsection.2.7}%
+\contentsline {section}{\numberline {3}The World-State Manifold and Its Symmetry Group}{12}{section.3}%
+\contentsline {section}{\numberline {4}Sensor Modalities as Projection Operators}{13}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Purpose of This Section}{13}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}The Configuration Space and Its Topology}{13}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Infrared Projection}{13}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}LiDAR Projection}{14}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}RGB/CCD Projection}{14}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Audio Projection}{15}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}Photonic Strip Projection}{15}{subsection.4.7}%
+\contentsline {subsection}{\numberline {4.8}The Completeness Proposition}{15}{subsection.4.8}%
+\contentsline {subsection}{\numberline {4.9}Degrees of Freedom Table}{16}{subsection.4.9}%
+\contentsline {subsection}{\numberline {4.10}Each Modality as a Chart}{16}{subsection.4.10}%
+\contentsline {section}{\numberline {5}The Feasible Set and Its Geometry}{17}{section.5}%
+\contentsline {section}{\numberline {6}The Consistency Operator and the Identifiability Theorem}{18}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Setup and Standing Assumptions}{18}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}The Feasible Set}{18}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}The Consistency Operator}{19}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}The Identifiability Theorem}{19}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}The Corollary on Diagnosable Failure Modes}{20}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}Why the Quotient Structure Is Not Optional}{20}{subsection.6.6}%
+\contentsline {section}{\numberline {7}Trajectory Learning and the Dynamical Admissibility Set}{21}{section.7}%
+\contentsline {subsection}{\numberline {7.1}The Central Obstruction}{21}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}The Path Space and the Stochastic Kernel}{21}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}The Deterministic Limit and Tangent Bundle Constraint}{21}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Trajectory Learning from Before/After Pairs}{22}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}The Dynamical Disambiguation Theorem}{22}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}Joint Identifiability}{23}{subsection.7.6}%
+\contentsline {section}{\numberline {8}The Inversion Layer}{24}{section.8}%
+\contentsline {section}{\numberline {9}Closure: Definition, Criteria, and Detection}{25}{section.9}%
+\contentsline {section}{\numberline {10}Deployment Scales as Feasible Set Geometry}{26}{section.10}%
+\contentsline {section}{\numberline {11}Relation to Prior Work}{27}{section.11}%
+\contentsline {section}{\numberline {12}Discussion: Closure as Epistemology}{28}{section.12}%
+\contentsline {section}{\numberline {13}Conclusion}{29}{section.13}%
+\contentsline {section}{\numberline {A}Fréchet Manifold Structure of $\mathcal {X}$}{30}{appendix.A}%
+\contentsline {section}{\numberline {B}Full Proof of the Identifiability Theorem}{30}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}Functional-Analytic Setting}{30}{subsection.B.1}%
+\contentsline {subsection}{\numberline {B.2}Existence of a Minimizer}{31}{subsection.B.2}%
+\contentsline {subsection}{\numberline {B.3}Uniqueness of the Minimizer}{31}{subsection.B.3}%
+\contentsline {subsection}{\numberline {B.4}Passage to the Quotient}{31}{subsection.B.4}%
+\contentsline {subsection}{\numberline {B.5}Full Proof of Theorem~\ref {thm:identifiability}}{31}{subsection.B.5}%
+\contentsline {section}{\numberline {C}Full Proof of the Dynamical Disambiguation Theorem}{32}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Measure-Theoretic Framework}{32}{subsection.C.1}%
+\contentsline {subsection}{\numberline {C.2}Convergence to the Deterministic Generator}{32}{subsection.C.2}%
+\contentsline {subsection}{\numberline {C.3}Stability of Trajectory Separation Under Noise}{32}{subsection.C.3}%
+\contentsline {subsection}{\numberline {C.4}Full Proof of Theorem~\ref {thm:disambiguation}}{33}{subsection.C.4}%
+\contentsline {section}{\numberline {D}Fisher Information Geometry of the Feasible Set}{34}{appendix.D}%
+\contentsline {section}{\numberline {E}Operator Class Library}{35}{appendix.E}%

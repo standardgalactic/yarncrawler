@@ -1,5 +1,15 @@
 # Yarncrawler in Action
 
+## Constraint Before Completion
+
+[Audio Overview](https://standardgalactic.github.io/yarncrawler/working/)
+
+[Essay](https://standardgalactic.github.io/yarncrawler/Constraint%20Before%20Completion.pdf)
+
+## World-State Reconstruction
+
+[Essay](https://standardgalactic.github.io/yarncrawler/World-State%20Reconstruction.pdf)
+
 **Yarncrawler in Action** is a research project exploring the **Yarncrawler Framework** — a model of self-repairing computation — and its connections to  
 - **RSVP field theory** (scalar Φ, vector 𝒗, entropy S),  
 - **stigmergic processes** in culture and ecology (e.g., terra preta), and  

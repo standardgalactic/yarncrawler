@@ -1,0 +1,85 @@
+\contentsline {section}{\numberline {1}Introduction: The Ontology of the Threshold}{5}{section.1}%
+\contentsline {section}{\numberline {2}The Geometry of the Solution Space}{6}{section.2}%
+\contentsline {subsection}{\numberline {2.1}From Solution Entropy to Lyapunov Energy}{7}{subsection.2.1}%
+\contentsline {section}{\numberline {3}Internal versus External Completion}{8}{section.3}%
+\contentsline {section}{\numberline {4}Headless Execution and the Decoupling of the Interface}{9}{section.4}%
+\contentsline {section}{\numberline {5}The Script as Trajectory: Event-History Ontology}{10}{section.5}%
+\contentsline {section}{\numberline {6}Entropy Collapse Across Representational Layers}{11}{section.6}%
+\contentsline {section}{\numberline {7}Constraint Absence and Semantic Collapse}{13}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Collapse as the Dual of Closure}{13}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Embedding Spaces and Neighborhood Semantics}{13}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Entropy as a Measure of Constraint Failure}{13}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Triplet Violations as Local Collapse Events}{14}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Operator Blindness as Constraint Deficiency}{14}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}Proofing Kernels as Closure Operators}{15}{subsection.7.6}%
+\contentsline {subsection}{\numberline {7.7}Collapse and Completion as Dual Phenomena}{15}{subsection.7.7}%
+\contentsline {section}{\numberline {8}Semantic Structure as Local Field Geometry}{15}{section.8}%
+\contentsline {subsection}{\numberline {8.1}From Global Geometry to Local Semantic Fields}{16}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Semantic Shift as Entropic Flow}{16}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Semantic Shift as an Entropy Functional}{16}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Hierarchical Semantics and Constraint Propagation}{17}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Field Interpretation and RSVP Correspondence}{18}{subsection.8.5}%
+\contentsline {subsection}{\numberline {8.6}One Swallow Does Not Make a Summer}{18}{subsection.8.6}%
+\contentsline {section}{\numberline {9}Realization Geometry and Semantic Quotients}{18}{section.9}%
+\contentsline {subsection}{\numberline {9.1}The Realization Map}{18}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Semantic Fields as Approximate Fibers}{19}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Semantic Shift as Motion in the Quotient}{19}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}Collapse versus Invariance-Preserving Abstraction}{19}{subsection.9.4}%
+\contentsline {subsection}{\numberline {9.5}Completion as Quotient Stability}{20}{subsection.9.5}%
+\contentsline {section}{\numberline {10}Functorial Structure of the Projection Hierarchy}{20}{section.10}%
+\contentsline {subsection}{\numberline {10.1}The Trajectory Category}{20}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Semantic Fields as a Functorial Image}{21}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}Collapse as Non-Faithfulness}{21}{subsection.10.3}%
+\contentsline {subsection}{\numberline {10.4}Completion as Functor Stabilization}{21}{subsection.10.4}%
+\contentsline {subsection}{\numberline {10.5}From Objects to Histories}{21}{subsection.10.5}%
+\contentsline {section}{\numberline {11}RSVP Dynamics as Infinitesimal Generator}{22}{section.11}%
+\contentsline {subsection}{\numberline {11.1}From Static Functor to Dynamical Generator}{22}{subsection.11.1}%
+\contentsline {subsection}{\numberline {11.2}Completion as a Fixed Point of the Flow}{22}{subsection.11.2}%
+\contentsline {subsection}{\numberline {11.3}Collapse as Instability}{22}{subsection.11.3}%
+\contentsline {subsection}{\numberline {11.4}Lyapunov Structure of Completion}{23}{subsection.11.4}%
+\contentsline {section}{\numberline {12}Temporal Constraints and the Management of Entropy}{23}{section.12}%
+\contentsline {section}{\numberline {13}The Engineering of Legibility}{24}{section.13}%
+\contentsline {section}{\numberline {14}The Denouement Operator}{25}{section.14}%
+\contentsline {section}{\numberline {15}Music as External Clock}{27}{section.15}%
+\contentsline {section}{\numberline {16}Epistemic Asymmetry and Collaboration Friction}{28}{section.16}%
+\contentsline {section}{\numberline {17}The Relocation of Rendering}{29}{section.17}%
+\contentsline {section}{\numberline {18}Three Modes of Completion}{30}{section.18}%
+\contentsline {paragraph}{Generator Mode.}{30}{section.18}%
+\contentsline {paragraph}{Delegated Mode.}{30}{section.18}%
+\contentsline {paragraph}{Performed Mode.}{31}{section.18}%
+\contentsline {section}{\numberline {19}Implications}{31}{section.19}%
+\contentsline {section}{\numberline {20}Objections and Formal Responses}{32}{section.20}%
+\contentsline {subsection}{\numberline {20.1}Premature Termination}{32}{subsection.20.1}%
+\contentsline {subsection}{\numberline {20.2}Material Contingency}{32}{subsection.20.2}%
+\contentsline {subsection}{\numberline {20.3}Independence of the Three Characterizations}{33}{subsection.20.3}%
+\contentsline {subsection}{\numberline {20.4}Toward a General Theory of Constraint-Driven Systems}{33}{subsection.20.4}%
+\contentsline {section}{\numberline {21}Conclusion: Completion as a Property of Mappings}{34}{section.21}%
+\contentsline {section}{\numberline {A}Constraint Closure and Solution Manifolds}{35}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}State Space and Constraints}{35}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Structural Equivalence}{35}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Formal Definition}{35}{subsection.A.3}%
+\contentsline {subsection}{\numberline {A.4}Entropy of the Solution Set}{35}{subsection.A.4}%
+\contentsline {subsection}{\numberline {A.5}Partial Order on Constraint Density}{35}{subsection.A.5}%
+\contentsline {section}{\numberline {B}Projection and External Completion}{35}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}The Projection Map}{35}{subsection.B.1}%
+\contentsline {subsection}{\numberline {B.2}Non-Invariance Under Structural Equivalence}{36}{subsection.B.2}%
+\contentsline {subsection}{\numberline {B.3}Residual Encoding Distance}{36}{subsection.B.3}%
+\contentsline {section}{\numberline {C}Generative Mappings and Headless Closure}{36}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Generator Space}{36}{subsection.C.1}%
+\contentsline {subsection}{\numberline {C.2}Headless Execution}{36}{subsection.C.2}%
+\contentsline {subsection}{\numberline {C.3}Hierarchy of Generator Spaces}{37}{subsection.C.3}%
+\contentsline {section}{\numberline {D}Temporal Legibility and Information Release}{37}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}Legibility as Cumulative Recognition}{37}{subsection.D.1}%
+\contentsline {subsection}{\numberline {D.2}Observer Entropy}{37}{subsection.D.2}%
+\contentsline {subsection}{\numberline {D.3}Denouement Threshold}{37}{subsection.D.3}%
+\contentsline {section}{\numberline {E}Worked Example: Mural as Manifold Collapse}{37}{appendix.E}%
+\contentsline {section}{\numberline {F}Worked Example: bpy Script as Generator}{38}{appendix.F}%
+\contentsline {section}{\numberline {G}Worked Example: Live Painting as Controlled Trajectory}{38}{appendix.G}%
+\contentsline {section}{\numberline {H}Semantic Collapse and Fiber-Quotient Correspondence}{39}{appendix.H}%
+\contentsline {subsection}{\numberline {H.1}Metric Measure Space Framework}{39}{subsection.H.1}%
+\contentsline {subsection}{\numberline {H.2}Variational Characterization}{40}{subsection.H.2}%
+\contentsline {subsection}{\numberline {H.3}Fiber-Quotient Correspondence}{40}{subsection.H.3}%
+\contentsline {section}{\numberline {I}Functorial Projection and Lyapunov Stability}{40}{appendix.I}%
+\contentsline {subsection}{\numberline {I.1}Semantic Projection Systems}{40}{subsection.I.1}%
+\contentsline {subsection}{\numberline {I.2}Generator--Functor Correspondence}{41}{subsection.I.2}%
+\contentsline {subsection}{\numberline {I.3}Proof of Lyapunov Decrease}{41}{subsection.I.3}%

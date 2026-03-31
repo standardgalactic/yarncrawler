@@ -1,0 +1,2380 @@
+\documentclass[12pt, oneside]{article}
+
+\usepackage{amsmath, amsthm, amssymb, amsfonts}
+\usepackage{mathtools}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{abstract}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage[numbers, sort&compress]{natbib}
+
+\geometry{
+  paper=a4paper,
+  top=2.5cm, bottom=2.5cm,
+  left=3cm, right=3cm
+}
+
+\onehalfspacing
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=black
+}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{remark}[theorem]{Remark}
+
+% Preliminary section styling
+\newcommand{\preliminary}[1]{%
+  \colorbox{yellow!20}{\parbox{\dimexpr\linewidth-2\fboxsep}{%
+    \textbf{\textcolor{red!70!black}{[PRELIMINARY OUTLINE --- NOT YET DRAFTED]}}\\[4pt]
+    #1
+  }}%
+}
+
+% Math operators
+\DeclareMathOperator{\supp}{supp}
+\DeclareMathOperator{\vol}{Vol}
+\DeclareMathOperator{\interior}{int}
+\DeclareMathOperator{\diam}{diam}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\inner}[2]{\langle #1, #2 \rangle}
+\newcommand{\Xmod}{\mathcal{X}/{\sim}}
+\newcommand{\Xquot}{\mathcal{X}/G}
+\newcommand{\Ftil}{\widetilde{\Pi}}
+
+\title{%
+  \Large\textbf{Yarncrawler: World-State Reconstruction}\\[6pt]
+  \large\textbf{as Constraint Closure over a Generative Field}
+}
+
+\author{Flyxion}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This paper introduces Yarncrawler as a framework for reconstructing physical world-states
+from multi-modal sensor observations under continuous dynamical constraint. The central
+object is a consistency operator $\mathcal{C}$ acting on the quotient configuration space
+$\mathcal{X}/{\sim}$ of coupled Relativistic Scalar-Vector Plenum field triples
+$(\Phi, \mathbf{v}, S)$. Each sensor modality defines a projection operator
+$\Pi_i : \mathcal{X} \to \mathcal{Y}_i$; each observation $y_i$ constrains the set of
+field configurations consistent with what the sensor reports. The consistency operator
+searches for the unique admissible configuration whose forward projections are compatible
+with all observations simultaneously.
+
+The main result---the Yarncrawler Identifiability Theorem---establishes that $\mathcal{C}$
+has a unique fixed point if and only if the induced map
+$\widetilde{\Pi} : \Xmod \to \prod_i \mathcal{Y}_i$ is injective on the feasible set
+$\mathcal{F} = \Omega_{\mathrm{obs}} \cap \Gamma$. The Dynamical Disambiguation Theorem
+extends this to realistic sensing regimes where static observations underdetermine the
+world-state: trajectory fragments constrain the tangent bundle of the admissible manifold,
+removing degrees of freedom that no static projection can touch.
+
+The paper further establishes that the variational consistency framework and the
+sheaf-theoretic repair framework---in which sensor modalities define local charts, observations
+define local sections, and closure corresponds to the existence of a unique global
+section---are formally equivalent. There exists a functor
+$\Psi : \mathbf{Proj}(\mathcal{X}) \to \mathbf{Sh}(\Xmod)$ under which the consistency
+operator is the variational realization of the sheaf repair operator, projection degeneracy
+corresponds to non-trivial $H^1$, and entropy collapse corresponds to cohomology
+trivialization. The RSVP entropy field $S$ is identified as the local density of
+cohomological obstruction; its minimization under $\mathcal{C}$ is the physical expression
+of sheaf repair.
+
+Deployment at planetary, regional, and site scales is unified by treating each scale as a
+different geometry of the feasible set under varying noise profiles. The framework is
+implemented as a sensor fusion architecture combining learned trajectory operators with
+physics-constrained forward models, applied to coupled ecosystem and civilization dynamics
+calibrated from before-and-after observational pairs across modalities including infrared,
+LiDAR, RGB, audio, and photonic strip sensors.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%% ============================================================
+\section{Introduction}
+%% ============================================================
+
+\subsection{The Problem}
+
+Given a family of projection operators $\{\Pi_i\}_{i \in \mathcal{I}}$ mapping an unknown
+world-state $[X] \in \Xmod$ to observable quantities $y_i \in \mathcal{Y}_i$, and given a
+dynamical law governing how world-states evolve, the central question of this paper is:
+
+\begin{quote}
+\textit{Under what conditions does there exist a unique trajectory in the quotient
+configuration space $\Xmod$ consistent with all projections simultaneously and admissible
+under the dynamics?}
+\end{quote}
+
+This is not a modeling question. It is an identifiability question. The paper does not
+propose a method for approximating world-states from sensor data---it establishes the
+conditions under which a unique world-state is \emph{demanded} by the data, and proves
+that when those conditions hold, a specific operator converges to it.
+
+The setting is the following. The world-state is a coupled field triple
+$X = (\Phi, \mathbf{v}, S)$---scalar density, vector flow, and entropy
+production---evolving over a compact spatial domain under the Relativistic Scalar-Vector
+Plenum (RSVP) field equations. The projections $\Pi_i$ correspond to sensor modalities:
+infrared, LiDAR, RGB, audio, photonic strips. Each observation $y_i$ constrains which
+field configurations are consistent with what the sensor reports. The consistency operator
+$\mathcal{C}$ searches for the configuration that minimizes total projection residual
+subject to physical admissibility. The dynamical admissibility set $\Gamma$ restricts
+attention to configurations that lie on trajectories the world could have taken. The
+feasible set $\mathcal{F} = \Omega_{\mathrm{obs}} \cap \Gamma$ is the intersection of all
+constraints. Closure---the condition that $|\mathcal{F}| = 1$---is the condition that the
+world-state is uniquely determined.
+
+\subsection{The Central Result}
+
+The paper proves the following.
+
+The problem of multi-modal consistency---finding a world-state whose forward projections
+are compatible with all available observations---is equivalent to the existence of a unique
+global section of a sheaf $\mathcal{S}_\Pi$ induced by the projection family over a cover
+of $\Xmod$.
+
+More precisely: the consistency operator $\mathcal{C}$ is the variational realization of
+the sheaf repair operator. Its fixed points are global sections. Its failure modes---
+projection degeneracy and regularizer flatness---are cohomological obstructions $H^1 \ne 0$
+and degenerate $H^0$. Adding sensors refines the cover and kills $H^1$ classes.
+Strengthening the dynamical constraint extends the cover into the temporal direction and
+kills residual ambiguity that spatial sensing cannot reach. Closure is the condition
+$H^0 = 1$, $H^1 = 0$: the sheaf has exactly one global section.
+
+This is the Yarncrawler Identifiability Theorem and its dynamical extension, proved in
+Sections \ref{sec:identifiability} and \ref{sec:disambiguation} and their appendices.
+
+\subsection{The Duality}
+
+The framework has two faces, both present in this paper.
+
+The \emph{forward} direction takes a world-state as given and asks how a system maintains
+coherence under perturbation: how it detects tears in its semantic fabric, applies repair
+morphisms that trivialize \v{C}ech cocycles, exports entropy through stigmergic
+reinforcement, and sustains homeorhetic flows rather than static equilibria.
+
+The \emph{inverse} direction takes sensor observations as given and asks what world-state
+they structurally demand. Given what the sensors report, what field configuration is forced?
+
+These are not complementary perspectives on the same phenomenon. They are dual realizations
+of the same mathematical object. Both directions study the sheaf $\mathcal{S}_\Pi$ over the
+quotient configuration space $\Xmod$. The forward direction studies the internal dynamics
+of sections within $\mathcal{S}_\Pi$---how they evolve, heal, and accumulate into global
+coherence. The inverse direction studies the conditions under which a unique global section
+exists and the operator that converges to it. The RSVP field triple $(\Phi, \mathbf{v}, S)$
+parametrizes the stalks in both directions. The Yarncrawler framework is the unified theory
+of that sheaf and its dynamics.
+
+The object common to both is neither the operator nor the sheaf taken separately. It is
+the equivalence between them---the functor
+$\Psi : \mathbf{Proj}(\mathcal{X}) \to \mathbf{Sh}(\Xmod)$ proved in
+Section~\ref{sec:equivalence}, which shows that a projection family and a sheaf over a
+configuration space are the same structure viewed from outside and inside respectively.
+
+\subsection{The Consequence}
+
+When closure is achieved---when $|\mathcal{F}| = 1$---three things happen simultaneously
+that were previously three separate conditions.
+
+The projection residuals collapse to within noise tolerance:
+$\|\Pi_i(X^*) - y_i\| \le \epsilon_i$ for all $i$. The cohomology of the induced sheaf
+trivializes: $H^1(\mathcal{U}, \mathcal{S}_\Pi) = 0$ and $\dim H^0 = 1$. The RSVP entropy
+field $S$ is minimized subject to admissibility: no further constraint can be satisfied
+that is not already satisfied.
+
+These are not three criteria that must be checked independently. Under the
+Sheaf-Variational Equivalence of Section~\ref{sec:equivalence}, they are one criterion
+expressed in three languages---variational, cohomological, and field-theoretic. The entropy
+of the RSVP field at the fixed point is the local density of cohomological obstruction,
+and its minimization is the physical expression of sheaf repair.
+
+The closed state $[X^*]$ is therefore not a best estimate. It is the unique trajectory
+consistent with all projections and admissible dynamics---the world-state that no
+alternative history can explain away.
+
+\subsection{Structure of the Paper}
+
+Section~\ref{sec:equivalence} establishes the Sheaf-Variational Equivalence. Sections
+\ref{sec:worldstate} and \ref{sec:projections} develop the prerequisite machinery.
+Section~\ref{sec:feasible} defines the feasible set geometrically.
+Sections~\ref{sec:identifiability} and \ref{sec:disambiguation} contain the core theorems.
+Section~\ref{sec:inversion} develops the inversion layer architecture.
+Section~\ref{sec:closure} defines closure operationally and proves equivalence of the three
+closure criteria. Section~\ref{sec:deployment} unifies planetary, regional, and site-scale
+deployment. Section~\ref{sec:related} positions the framework against prior work.
+Section~\ref{sec:epistemology} draws the epistemological consequence. Appendices
+\ref{app:frechet}--\ref{app:operators} provide the functional-analytic foundations.
+
+%% ============================================================
+\section{The Sheaf-Variational Equivalence}
+\label{sec:equivalence}
+%% ============================================================
+
+\subsection{Two Descriptions of the Same Object}
+
+The Yarncrawler framework has two faces. The first describes a self-refactoring system
+that maintains coherence by repairing tears in its semantic fabric: local sections are
+parsed, inconsistencies are detected as \v{C}ech cocycles, and repair morphisms trivialize
+them until a global section exists. The second describes a consistency operator that
+searches for a field configuration whose forward projections are compatible with all
+available sensor observations simultaneously. These descriptions appear to operate at
+different levels of abstraction---one categorical and topological, the other variational
+and analytic. This section proves they are the same description.
+
+The identification is not a metaphor. There is a precise functor between the category of
+sheaves of semantic sections over a cover and the category of projection families on the
+quotient configuration space $\Xmod$. Under this functor, every concept in the
+sheaf-theoretic account has an exact counterpart in the variational account, and vice
+versa.
+
+\subsection{The Sheaf-Theoretic Account}
+
+Let $\mathcal{M}$ be a topological space equipped with an open cover
+$\mathcal{U} = \{U_i\}_{i \in \mathcal{I}}$. A presheaf $\mathcal{S}$ over $\mathcal{U}$
+assigns to each $U_i$ a category $\mathcal{S}(U_i)$ of local sections, and to each
+inclusion $U_j \subseteq U_i$ a restriction functor
+$\rho_{ij} : \mathcal{S}(U_i) \to \mathcal{S}(U_j)$.
+
+\begin{definition}[Gluing Condition]
+A family of local sections $\{s_i \in \mathcal{S}(U_i)\}_{i \in \mathcal{I}}$ satisfies
+the \emph{gluing condition} if for all $i, j \in \mathcal{I}$:
+\[
+\rho_{U_i, U_i \cap U_j}(s_i) = \rho_{U_j, U_i \cap U_j}(s_j) \quad \text{on }
+U_i \cap U_j.
+\]
+A presheaf in which every compatible family of local sections admits a unique global
+section $s \in \mathcal{S}(\mathcal{M})$ with $s|_{U_i} = s_i$ is called a \emph{sheaf}.
+\end{definition}
+
+\begin{definition}[Semantic Tear and Repair]
+A \emph{semantic tear} at overlap $U_i \cap U_j$ is a failure of the gluing condition.
+The discrepancy defines a \v{C}ech 1-cochain
+$c_{ij} = \rho_{ij}(s_j) - \rho_{ji}(s_i)$. A \emph{repair} is a morphism in
+$\mathcal{S}(U_i \cap U_j)$ that trivializes $c_{ij}$. The space of unresolved tears is
+measured by $H^1(\mathcal{U}, \mathcal{S})$.
+\end{definition}
+
+\begin{definition}[Sheaf Repair Operator]
+The \emph{sheaf repair operator} $\mathcal{R}_{\mathrm{sheaf}}$ maps a family of
+inconsistent local sections to a minimally modified family satisfying the gluing condition,
+where minimality is measured by a seam cost functional $\mathcal{L}_{\mathrm{seam}}$:
+\[
+\mathcal{R}_{\mathrm{sheaf}}(\{s_i\}) = \arg\min_{\{s'_i\}} \sum_{i < j}
+\mathcal{L}_{\mathrm{seam}}(s'_i|_{U_{ij}}, s'_j|_{U_{ij}}) +
+\sum_i \mathcal{L}_{\mathrm{local}}(s'_i, s_i).
+\]
+Global section existence corresponds to $\mathcal{L}_{\mathrm{seam}} = 0$ at the optimum.
+\end{definition}
+
+\subsection{The Variational Account}
+
+The variational account centers on the consistency operator:
+\[
+\mathcal{C}([X]) = \arg\min_{[X'] \in \mathcal{A}}
+\left[ \sum_{i \in \mathcal{I}} \|\Pi_i(X') - y_i\|_{\mathcal{Y}_i}^2
++ \mathcal{R}(X') \right]
+\]
+where $\Pi_i : \mathcal{X} \to \mathcal{Y}_i$ are projection operators, $y_i$ are
+observations, and $\mathcal{R}$ is the RSVP-consistent regularizer encoding admissibility.
+A fixed point $[X^*]$ satisfies $\Pi_i(X^*) \approx y_i$ for all $i$ within tolerance
+$\epsilon_i$.
+
+\subsection{The Dictionary}
+
+The following correspondence identifies every object in the sheaf-theoretic account with
+its exact counterpart in the variational account.
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Sheaf-theoretic concept} & \textbf{Variational counterpart} \\
+\midrule
+Open set $U_i$ in cover $\mathcal{U}$ & Sensor modality $i$ with space $\mathcal{Y}_i$ \\
+Local section $s_i \in \mathcal{S}(U_i)$ & Observation $y_i \in \mathcal{Y}_i$ \\
+Restriction map $\rho_{ij}$ & Projection operator $\Pi_i$ \\
+Gluing condition & Projection consistency $\Pi_i(X) = y_i$ \\
+\v{C}ech 1-cochain $c_{ij}$ & Projection residual $\|\Pi_i(X) - y_i\|$ \\
+Coboundary (trivialized cocycle) & Residual driven to zero by $\mathcal{C}$ \\
+Global section $s \in \mathcal{S}(\mathcal{M})$ & Fixed point $[X^*] \in \Xmod$ \\
+Cohomological obstruction $H^1 \ne 0$ & Projection degeneracy \\
+Flat direction in $\mathcal{L}_{\mathrm{local}}$ & Regularizer flatness \\
+Repair morphism trivializing $c_{ij}$ & One step of the refinement loop \\
+Sheaf repair operator $\mathcal{R}_{\mathrm{sheaf}}$ & Consistency operator $\mathcal{C}$ \\
+Stigmergic threshold & Contractivity condition on $\mathcal{C}$ \\
+Self-maintaining growth & Convergence of refinement loop to $[X^*]$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{The Sheaf-Variational Equivalence}
+
+\begin{definition}[Category of Projection Families]
+Let $\mathbf{Proj}(\mathcal{X})$ be the category whose objects are pairs
+$(\mathcal{I}, \{\Pi_i\}_{i \in \mathcal{I}})$ and whose morphisms are inclusions of
+index sets compatible with the projection structure.
+\end{definition}
+
+\begin{definition}[Category of Covering Sheaves]
+Let $\mathbf{Sh}(\mathcal{M})$ be the category whose objects are sheaves $\mathcal{S}$
+over covers $\mathcal{U}$ of $\mathcal{M}$, and whose morphisms are morphisms of sheaves
+over refinements of covers.
+\end{definition}
+
+\begin{theorem}[Sheaf-Variational Equivalence]
+\label{thm:equivalence}
+There exists a functor
+\[
+\Psi : \mathbf{Proj}(\mathcal{X}) \longrightarrow \mathbf{Sh}(\Xmod)
+\]
+such that:
+\begin{enumerate}
+\item[(i)] $\Psi$ maps each projection family $\{\Pi_i\}_{i \in \mathcal{I}}$ to a sheaf
+$\mathcal{S}_\Pi$ over a cover of $\Xmod$ whose local sections are observation-consistent
+field configurations.
+\item[(ii)] The gluing condition of $\mathcal{S}_\Pi$ is equivalent to the projection
+consistency condition $\Pi_i(X) = y_i$ for all $i$.
+\item[(iii)] The consistency operator $\mathcal{C}$ is the variational realization of the
+sheaf repair operator $\mathcal{R}_{\mathrm{sheaf}}$ under $\Psi$.
+\item[(iv)] The fixed point $[X^*]$ of $\mathcal{C}$ corresponds under $\Psi$ to the
+unique global section of $\mathcal{S}_\Pi$.
+\item[(v)] The cohomological obstruction $H^1(\mathcal{U}, \mathcal{S}_\Pi) = 0$ if and
+only if the projection family is identifying on $\mathcal{F}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textbf{Construction of $\Psi$.} Given a projection family
+$(\mathcal{I}, \{\Pi_i\})$, construct the cover
+$\mathcal{U} = \{U_i\}_{i \in \mathcal{I}}$ of $\Xmod$ where
+\[
+U_i = \{ [X] \in \mathcal{A} \mid \|\Pi_i(X) - y_i\|_{\mathcal{Y}_i} \le \epsilon_i \}.
+\]
+Define the sheaf $\mathcal{S}_\Pi$ by assigning to each $U_i$:
+\[
+\mathcal{S}_\Pi(U_i) = U_i \cap \mathcal{A}.
+\]
+For inclusions $U_j \subseteq U_i$, the restriction map $\rho_{ij}$ is the inclusion
+$U_j \cap \mathcal{A} \hookrightarrow U_i \cap \mathcal{A}$.
+
+\textbf{Part (i).} By construction, $\mathcal{S}_\Pi(U_i)$ consists of admissible
+configurations whose $i$-th projection is within tolerance of $y_i$. $\checkmark$
+
+\textbf{Part (ii).} A family $\{[X_i] \in \mathcal{S}_\Pi(U_i)\}$ satisfies the gluing
+condition iff $[X_i] = [X_j]$ on $U_i \cap U_j$ for all $i,j$, which is precisely the
+condition that a single $[X] \in \mathcal{A}$ satisfies $\Pi_i(X) = y_i$ for all $i$
+simultaneously. $\checkmark$
+
+\textbf{Part (iii).} The objective of $\mathcal{R}_{\mathrm{sheaf}}$ translates as:
+\[
+\sum_{i<j} \mathcal{L}_{\mathrm{seam}} + \mathcal{L}_{\mathrm{local}}
+\;\longleftrightarrow\;
+\sum_i \|\Pi_i(X) - y_i\|^2 + \mathcal{R}(X),
+\]
+which is exactly the objective of $\mathcal{C}$. $\checkmark$
+
+\textbf{Part (iv).} A fixed point $[X^*]$ of $\mathcal{C}$ satisfies
+$[X^*] \in U_i$ for all $i$, giving a local section $s_i = [X^*]|_{U_i}$ that trivially
+satisfies the gluing condition. Uniqueness follows from Theorem~\ref{thm:identifiability}.
+$\checkmark$
+
+\textbf{Part (v).} $H^1(\mathcal{U}, \mathcal{S}_\Pi)$ measures failure of compatible
+local sections to glue into a global section, which is exactly projection degeneracy by
+part (ii). $\checkmark$
+
+\textbf{Functoriality.} Adding sensors corresponds to refining the cover; the refinement
+map defines a natural transformation establishing functoriality. $\square$
+\end{proof}
+
+\subsection{Consequences of the Equivalence}
+
+\textbf{Consequence 1: The two failure modes are cohomological.} Projection degeneracy is
+$H^1 \ne 0$; regularizer flatness is degenerate $H^0$. Adding sensors can kill $H^1$
+classes; strengthening the regularizer thins the stalks and kills degenerate $H^0$.
+
+\textbf{Consequence 2: Dynamical disambiguation is cohomology in time.} The dynamical
+admissibility set $\Gamma$ extends the cover into the temporal direction. Trajectory
+separation kills residual $H^1$ classes that spatial sensors cannot. The full feasible set
+$\mathcal{F} = \Omega_{\mathrm{obs}} \cap \Gamma$ is the global section of a sheaf over a
+spatio-temporal cover.
+
+\textbf{Consequence 3: Forward and inverse are dual.} The forward direction studies the
+repair dynamics of $\mathcal{S}_\Pi$ from inside---how sections evolve under stigmergic
+reinforcement and homeorhetic flow. The inverse direction studies the existence and
+uniqueness of the global section from outside. Both study the same sheaf.
+
+\subsection{The Entropy Identification}
+
+The RSVP entropy field $S$ appears in two roles throughout this framework: as the
+entropy component of the field triple $(\Phi, \mathbf{v}, S)$, and as a measure of
+unresolved obstruction. Under the Sheaf-Variational Equivalence these become one.
+
+The observation-consistent set $\Omega_{\mathrm{obs}}$ carries a natural measure induced
+by the Fisher information metric of the noise models $\{\mathcal{N}_i\}$ (developed in
+Appendix~\ref{app:fisher}). The volume of $\Omega_{\mathrm{obs}}$ under this metric
+measures residual uncertainty. Under the equivalence:
+\[
+\log \vol_{\mathrm{Fisher}}(\Omega_{\mathrm{obs}})
+\;\longleftrightarrow\;
+\log \dim H^0(\mathcal{U}, \mathcal{S}_\Pi)
+\;\longleftrightarrow\;
+S_{\mathrm{RSVP}}(X^*).
+\]
+All three measure residual degrees of freedom after all constraints have been applied.
+Closure corresponds to each collapsing simultaneously. The RSVP entropy field is not
+merely a bookkeeping device---it is the local density of cohomological obstruction, and
+its minimization under $\mathcal{C}$ is the physical expression of sheaf repair.
+
+%% ============================================================
+\section{The World-State Manifold and Its Symmetry Group}
+\label{sec:worldstate}
+%% ============================================================
+
+\preliminary{
+\textbf{This section develops the minimal mathematical infrastructure that Appendix B
+requires: the configuration space $\mathcal{X}$, its symmetry group $G$, the quotient
+$\mathcal{X}/{\sim}$, and the admissible set $\mathcal{A}$.}
+
+\medskip
+\textbf{3.1 The Configuration Space.}
+Defines $\mathcal{X} = H^1(\Omega) \times H^1(\Omega;\mathbb{R}^3) \times L^2(\Omega)$
+over compact domain $\Omega \subset \mathbb{R}^3$. Specifies the product Sobolev norm.
+States that $\mathcal{X}$ is a separable Hilbert space and hence also a Fréchet manifold
+(this is elaborated in Appendix~\ref{app:frechet}). Identifies the three field components
+with physical quantities: $\Phi$ as ecosystem scalar density and civilizational legitimacy
+potential, $\mathbf{v}$ as resource flow and infrastructure transport vectors, $S$ as
+entropy production and complexity budget. Gives explicit examples of each component in
+ecological and civilizational contexts to ground the abstraction before the symmetry group
+is introduced.
+
+\medskip
+\textbf{3.2 The Symmetry Group.}
+Defines $G$ as the group acting on $\mathcal{X}$ comprising: (a) gauge redundancies of
+the field representation---rephasing and rescaling transformations that leave physical
+observables invariant; (b) smooth coordinate reparametrizations of $\Omega$---diffeomorphisms
+that relabel spatial positions without changing field content; (c) observationally
+equivalent reconfigurations of the civilizational layer---distinct infrastructure or
+demographic configurations that produce identical sensor outputs. States that the action
+of $G$ is smooth, proper, and isometric with respect to the product Sobolev metric, so
+that $\mathcal{X}/G$ is Hausdorff and inherits a natural metric. Distinguishes $G$-equivalence
+from observational equivalence $\sim$: the former is intrinsic to the field representation,
+the latter is extrinsic and depends on the projection family. Notes that $\sim$ is coarser
+than $G$-equivalence in general and will collapse to $G$-equivalence when the projection
+family is complete (as established in Section~\ref{sec:projections}).
+
+\medskip
+\textbf{3.3 The Admissible Set.}
+Defines $\mathcal{A} \subset \mathcal{X}/{\sim}$ as the set of physically admissible
+equivalence classes: those satisfying the RSVP field equations, ecological plausibility
+constraints, and civilizational feasibility constraints. States Assumption A4 (geodesic
+convexity and strict convexity of $\mathcal{R}$ on $\mathcal{A}$) and gives the physical
+motivation for each condition: geodesic convexity ensures that admissible interpolations
+respect symmetry, lower semicontinuity ensures admissibility is stable under limits,
+coercivity ensures physically implausible configurations are excluded rather than merely
+penalized. Identifies $\mathcal{A}$ as a closed convex subset of the Banach realization
+$\mathcal{B}$ defined in Assumption B1 of Appendix~\ref{app:identifiability}.
+
+\medskip
+\textbf{3.4 The RSVP Field Equations.}
+States the plenum field equations governing time evolution of $(\Phi, \mathbf{v}, S)$:
+scalar continuity, vector momentum, and entropy production equations. These are the
+equations that $\mathcal{R}_{\mathrm{RSVP}}$ penalizes violation of. Notes that solutions
+to these equations form the dynamical admissibility set $\Gamma$ in the zero-noise limit
+(Section~\ref{sec:disambiguation}). Does not derive the equations---they are taken as
+given from the RSVP framework---but states them precisely enough that $\mathcal{R}_{\mathrm{RSVP}}$
+can be defined as a specific $L^2$ norm of residuals.
+
+\medskip
+\textbf{3.5 The Regularizer.}
+Defines
+\[
+\mathcal{R}(X) = \mathcal{R}_{\mathrm{RSVP}}(X)
++ \lambda_{\mathrm{eco}}\,\mathcal{R}_{\mathrm{eco}}(X)
++ \lambda_{\mathrm{civ}}\,\mathcal{R}_{\mathrm{civ}}(X)
+\]
+with each component defined explicitly. $\mathcal{R}_{\mathrm{RSVP}}$: squared $L^2$
+residuals of the three RSVP field equations. $\mathcal{R}_{\mathrm{eco}}$: zero on
+ecologically admissible configurations (satisfying biomass conservation, succession
+ordering, watershed feasibility), strictly positive off it. $\mathcal{R}_{\mathrm{civ}}$:
+zero on civilizationally admissible configurations (satisfying demographic feasibility,
+infrastructure stress bounds, resource flow conservation), strictly positive off it.
+Emphasizes that the decomposition is notational: $\mathcal{R}$ is a single functional
+encoding coupled closure, not a product of independent penalties.
+}
+
+%% ============================================================
+\section{Sensor Modalities as Projection Operators}
+\label{sec:projections}
+%% ============================================================
+
+\subsection{Purpose of This Section}
+
+Section~\ref{sec:equivalence} established that a projection family $\{\Pi_i\}_{i \in \mathcal{I}}$
+and a sheaf $\mathcal{S}_\Pi$ over $\Xmod$ are the same structure viewed from outside and
+inside respectively. What remains is to specify what the projection operators actually
+are---not as abstract bounded linear maps, but as concrete operators whose domains,
+codomains, and kernels are determined by the physics of each sensor modality.
+
+This section defines each projection operator precisely enough that Assumption A1 can be
+verified directly. It establishes the RSVP correspondence: the identification of each
+modality with a specific component or functional of the field triple $(\Phi, \mathbf{v}, S)$.
+And it proves the completeness proposition: the condition under which the projection family
+collectively spans the full RSVP triple.
+
+Nothing in this section is motivated by sensor engineering. The operators are defined as
+they are because those definitions are what the theorems in Sections~\ref{sec:identifiability}
+and \ref{sec:disambiguation} require.
+
+\subsection{The Configuration Space and Its Topology}
+
+Let $\Omega \subset \mathbb{R}^3$ be a compact domain with smooth boundary. The
+configuration space is
+\[
+\mathcal{X} = H^1(\Omega) \times H^1(\Omega; \mathbb{R}^3) \times L^2(\Omega)
+\]
+with product Sobolev norm $\|X\|_{\mathcal{X}}^2 = \|\Phi\|_{H^1}^2 + \|\mathbf{v}\|_{H^1}^2 + \|S\|_{L^2}^2$.
+All projection operators defined below are required to descend to the quotient $\Xmod$:
+they must be constant on $G$-orbits.
+
+\subsection{Infrared Projection}
+
+\begin{definition}[Infrared Projection]
+The infrared projection $\Pi_{\mathrm{IR}} : \mathcal{X} \to \mathcal{Y}_{\mathrm{IR}}$
+is defined by
+\[
+\Pi_{\mathrm{IR}}(X) = \left( \Phi|_{\partial\Omega},\;
+\nabla\Phi \cdot \hat{n}|_{\partial\Omega} \right)
+\]
+where $\hat{n}$ is the outward unit normal to $\partial\Omega$ and
+$\mathcal{Y}_{\mathrm{IR}} = L^2(\partial\Omega) \times L^2(\partial\Omega)$.
+\end{definition}
+
+\begin{lemma}
+$\Pi_{\mathrm{IR}}$ is a bounded linear operator from $\mathcal{X}$ to $\mathcal{Y}_{\mathrm{IR}}$.
+\end{lemma}
+\begin{proof}
+The trace operator $\Phi \mapsto \Phi|_{\partial\Omega}$ is bounded from $H^1(\Omega)$
+to $L^2(\partial\Omega)$ by the Sobolev trace theorem. The normal derivative is bounded
+from $H^1(\Omega)$ to $H^{-1/2}(\partial\Omega) \hookrightarrow L^2(\partial\Omega)$ for
+smooth $\partial\Omega$. $\square$
+\end{proof}
+
+\textbf{RSVP correspondence.} $\Pi_{\mathrm{IR}}$ constrains boundary values and outward
+flux of $\Phi$: energy density at the surface and rate of energy exchange. It does not
+directly constrain $\mathbf{v}$ or $S$ in the interior.
+
+\subsection{LiDAR Projection}
+
+\begin{definition}[LiDAR Projection]
+Fix a threshold $\phi_0 > 0$. The LiDAR projection
+$\Pi_{\mathrm{LiDAR}} : \mathcal{X} \to \mathcal{Y}_{\mathrm{LiDAR}}$ is defined by
+\[
+\Pi_{\mathrm{LiDAR}}(X) = \mathbf{1}_{\{\Phi \ge \phi_0\}}
+\quad \text{together with} \quad
+\Pi_{\mathrm{LiDAR}}^{\perp}(X) =
+\frac{\nabla\Phi}{|\nabla\Phi|}\bigg|_{\{\Phi = \phi_0\}}.
+\]
+The observation space is
+$\mathcal{Y}_{\mathrm{LiDAR}} = L^2(\Omega;\{0,1\}) \times L^2(\{\Phi=\phi_0\};S^2)$.
+\end{definition}
+
+\begin{lemma}
+$\Pi_{\mathrm{LiDAR}}$ is bounded for $\phi_0$ a regular value of $\Phi$.
+\end{lemma}
+\begin{proof}
+For $\phi_0$ a regular value, $\{\Phi = \phi_0\}$ is smooth by the implicit function
+theorem in $H^1$. The indicator is bounded in $L^2(\Omega)$ by domain volume. The normal
+field is bounded by the Sobolev embedding $H^1 \hookrightarrow C^0$ in three dimensions.
+$\square$
+\end{proof}
+
+\textbf{RSVP correspondence.} $\Pi_{\mathrm{LiDAR}}$ constrains the geometry of level
+sets of $\Phi$ and normal directions to those surfaces, which simultaneously constrain
+boundary conditions on $\mathbf{v}$: flows cannot cross material boundaries.
+
+\subsection{RGB/CCD Projection}
+
+\begin{definition}[RGB Projection]
+Let $\mathbf{c} \in S^2$ be the camera viewing direction and $f : \mathbb{R} \to \mathbb{R}^3$
+a material reflectance function. The RGB projection
+$\Pi_{\mathrm{RGB}} : \mathcal{X} \to \mathcal{Y}_{\mathrm{RGB}}$ is defined by
+\[
+\Pi_{\mathrm{RGB}}(X) = \int_0^\infty f(\Phi(\mathbf{x}(t)))\,
+e^{-\int_0^t \Phi(\mathbf{x}(s)) ds}\, dt
+\]
+where $\mathbf{x}(t) = \mathbf{x}_0 + t\mathbf{c}$ and
+$\mathcal{Y}_{\mathrm{RGB}} = L^2(\mathcal{V};\mathbb{R}^3)$ over camera pixels $\mathcal{V}$.
+\end{definition}
+
+\begin{lemma}
+$\Pi_{\mathrm{RGB}}$ is bounded when $f$ is Lipschitz and $\Phi \ge 0$.
+\end{lemma}
+\begin{proof}
+The exponential attenuation is bounded by 1. The integrand is bounded by $\|f\|_\infty$,
+which is finite by Lipschitz continuity and $H^1 \hookrightarrow L^\infty$ in three
+dimensions. $\square$
+\end{proof}
+
+\textbf{RSVP correspondence.} $\Pi_{\mathrm{RGB}}$ constrains $\Phi$ along rays---a
+projective complement to $\Pi_{\mathrm{LiDAR}}$'s level-set constraint. Their kernels
+overlap partially but not completely.
+
+\subsection{Audio Projection}
+
+\begin{definition}[Audio Projection]
+Let $\mathbf{x}_m \in \Omega$ for $m = 1,\ldots,M$ be microphone positions. The audio
+projection $\Pi_{\mathrm{audio}} : \mathcal{X} \times [0,T] \to \mathcal{Y}_{\mathrm{audio}}$
+is
+\[
+\Pi_{\mathrm{audio}}(X)(t) =
+\left( \partial_t S(\mathbf{x}_m, t) + \nabla \cdot \mathbf{v}(\mathbf{x}_m, t)
+\right)_{m=1}^M
+\]
+with $\mathcal{Y}_{\mathrm{audio}} = L^2([0,T];\mathbb{R}^M)$.
+\end{definition}
+
+\textbf{RSVP correspondence.} $\Pi_{\mathrm{audio}}$ is the only modality that directly
+constrains $\partial_t S$---the rate of entropy production---and $\nabla \cdot \mathbf{v}$,
+encoding sources and sinks of flow. Hidden processes invisible to all spatial sensors are
+audible as entropy production events.
+
+\subsection{Photonic Strip Projection}
+
+\begin{definition}[Photonic Strip Projection]
+Let $\gamma : [0,L] \to \Omega$ parametrize the strip by arc length. The photonic strip
+projection $\Pi_{\mathrm{strip}} : \mathcal{X} \times [0,T] \to \mathcal{Y}_{\mathrm{strip}}$
+is
+\[
+\Pi_{\mathrm{strip}}(X)(s,t) =
+\left( \Phi(\gamma(s),t),\;
+\mathbf{v}(\gamma(s),t) \cdot \gamma'(s),\;
+\partial_t \Phi(\gamma(s),t) \right)
+\]
+with $\mathcal{Y}_{\mathrm{strip}} = L^2([0,L] \times [0,T];\mathbb{R}^3)$.
+\end{definition}
+
+\textbf{RSVP correspondence.} The photonic strip provides continuous temporal records of
+$\Phi$, tangential $\mathbf{v}$, and $\partial_t \Phi$ along a fixed transect: the only
+modality directly constraining temporal evolution of $\Phi$ at interior points.
+
+\subsection{The Completeness Proposition}
+
+\begin{definition}[Spanning Condition]
+A projection family $\{\Pi_i\}_{i \in \mathcal{I}}$ is \emph{field-spanning} if
+\[
+\ker \Ftil = \{ [X] \in \Xmod \mid \Pi_i(X) = 0 \;\forall i \in \mathcal{I} \} = \{[0]\}.
+\]
+\end{definition}
+
+\begin{proposition}[Completeness of the Five-Modality Family]
+\label{prop:completeness}
+The projection family $\{\Pi_{\mathrm{IR}}, \Pi_{\mathrm{LiDAR}}, \Pi_{\mathrm{RGB}},
+\Pi_{\mathrm{audio}}, \Pi_{\mathrm{strip}}\}$ is field-spanning on $\Xmod$.
+\end{proposition}
+
+\begin{proof}
+Suppose $[X] \in \ker \Ftil$. $\Pi_{\mathrm{IR}}(X) = 0$ gives
+$\Phi|_{\partial\Omega} = 0$. $\Pi_{\mathrm{LiDAR}}(X) = 0$ gives $\Phi < \phi_0$
+a.e. $\Pi_{\mathrm{strip}}(X) = 0$ along strips dense in $\Omega$ gives $\Phi = 0$
+on a dense subset; by $H^1$ continuity, $\Phi = 0$ on $\Omega$. With $\Phi = 0$,
+strip vanishing also gives $\mathbf{v} \cdot \gamma' = 0$ along all strips; with three
+non-parallel strip directions, $\mathbf{v} = 0$. Then $\Pi_{\mathrm{audio}}(X) = 0$
+with $\mathbf{v} = 0$ gives $\partial_t S = 0$ at dense microphone positions, so $S$
+is time-constant; RSVP entropy constraints force $S = 0$. Hence $[X] = [0]$. $\square$
+\end{proof}
+
+\subsection{Degrees of Freedom Table}
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Modality} & \textbf{Field constrained} & \textbf{Where} &
+\textbf{New DOF closed} \\
+\midrule
+Infrared & $\Phi$, $\nabla\Phi \cdot \hat{n}$ & $\partial\Omega$ &
+Boundary energy, flux \\
+LiDAR & Level sets of $\Phi$, normals & Interior surfaces &
+Geometry; $\mathbf{v}$ BCs \\
+RGB & $\Phi$ along rays & Lines of sight &
+Interior density \\
+Audio & $\partial_t S$, $\nabla \cdot \mathbf{v}$ & Point measurements &
+Temporal entropy, flow sources \\
+Photonic strip & $\Phi$, $\mathbf{v} \cdot \gamma'$, $\partial_t \Phi$ &
+Transects over time & Temporal $\Phi$; tangential flow \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Each Modality as a Chart}
+
+Under the Sheaf-Variational Equivalence, each $\Pi_i$ defines a chart
+$U_i = \{[X] \in \mathcal{A} \mid \|\Pi_i(X) - y_i\| \le \epsilon_i\}$ on $\Xmod$.
+The five modalities define five charts. Completeness ensures the cover is fine enough
+to support a non-degenerate sheaf. Sensor design is sheaf design: choosing modalities
+is choosing the cover of $\Xmod$.
+
+%% ============================================================
+\section{The Feasible Set and Its Geometry}
+\label{sec:feasible}
+%% ============================================================
+
+This section identifies the feasible set $\mathcal{F}$ as the primary geometric and
+cohomological object of the Yarncrawler framework. Given the projection family
+$\{\Pi_i\}_{i \in \mathcal{I}}$ and observations $\{y_i\}$, define
+observation-consistent sets
+\[
+U_i = \left\{ [X] \in \mathcal{A} \;\middle|\;
+\|\Pi_i(X) - y_i\|_{\mathcal{Y}_i} \le \epsilon_i \right\},
+\qquad
+\Omega_{\mathrm{obs}} = \bigcap_{i \in \mathcal{I}} U_i.
+\]
+The dynamically admissible set $\Gamma$, whose full construction appears in
+Section~\ref{sec:disambiguation}, consists of configurations lying on admissible
+trajectories of the world dynamics. The feasible set is
+$\mathcal{F} = \Omega_{\mathrm{obs}} \cap \Gamma$.
+Under the Sheaf-Variational Equivalence (Section~\ref{sec:equivalence}), each $U_i$
+is the support of a local section of $\mathcal{S}_\Pi$, and $\mathcal{F}$ is the space
+of admissible global sections. The identifiability and disambiguation theorems are
+statements about when this fiber collapses to a singleton.
+
+\subsection{Quotient Structure and Identifiability Domain}
+
+The relevant ambient space is the quotient $\mathcal{A} = \mathcal{X}/{\sim}$, where
+$X \sim X'$ if $\Pi_i(X) = \Pi_i(X')$ for all $i$. Multiple representatives in
+$\mathcal{X}$ agreeing on all projections correspond to the same equivalence class in
+$\mathcal{A}$ and hence to the same global section of $\mathcal{S}_\Pi$. All
+identifiability statements in Section~\ref{sec:identifiability} concern the restriction
+of the induced map $\Ftil : \mathcal{A} \to \prod_i \mathcal{Y}_i$ to $\mathcal{F}$.
+
+\subsection{Geometry of the Observation-Consistent Set}
+
+Each $U_i$ is closed and convex under Assumption~\ref{ass:regularity}. However, their
+intersection $\Omega_{\mathrm{obs}}$ is generically anisotropic and nontrivial. Three
+structural features determine its geometry. \emph{Anisotropy}: each projection
+constrains different directions in $\mathcal{A}$. \emph{Non-aligned nullspaces}: the
+kernels of $\{\Pi_i\}$ need not coincide, leaving residual directions that survive all
+individual constraints. \emph{Curvature under pullback}: the metric induced by the
+projection family is not Euclidean in $\mathcal{X}$, even when each $\Pi_i$ is linear.
+For these reasons $\Omega_{\mathrm{obs}}$ is best understood as a stratified admissible
+region whose local structure reflects the overlap pattern of the sensor family; smooth
+manifold structure holds on regular strata under generic regularity assumptions.
+
+\subsection{Dimensionality, Degeneracy, and Cohomology}
+
+Define the effective dimension $\dim_{\mathrm{eff}}(\mathcal{F}) = \dim(\Omega_{\mathrm{obs}}
+\cap \Gamma)$. When $\dim_{\mathrm{eff}}(\mathcal{F}) > 0$, multiple admissible
+configurations remain; under the Sheaf-Variational Equivalence this corresponds to
+multiple global sections, equivalently to non-trivial $H^1(\mathcal{U}, \mathcal{S}_\Pi)$.
+Closure is the condition $\dim_{\mathrm{eff}}(\mathcal{F}) = 0$, which under the
+equivalence is exactly
+\[
+\dim H^0(\mathcal{U}, \mathcal{S}_\Pi) = 1, \qquad H^1(\mathcal{U}, \mathcal{S}_\Pi) = 0.
+\]
+Ambiguity, degeneracy, and non-trivial cohomology are the same phenomenon expressed in
+geometric, variational, and categorical language.
+
+\begin{proposition}[Feasible Set Contraction]
+\label{prop:contraction}
+Under monotone addition of sensors with independent noise models, $\dim_{\mathrm{eff}}(\mathcal{F})$
+is non-increasing. Strict decrease holds when the new sensor $\Pi_j$ satisfies
+$\ker \Pi_j \not\supseteq \bigcap_{i < j} \ker \Pi_i$.
+\end{proposition}
+\begin{proof}
+Adding $U_j$ to the intersection defining $\Omega_{\mathrm{obs}}$ cannot increase
+dimension. Strict decrease holds iff $\Pi_j$ constrains a direction not previously closed.
+$\square$
+\end{proof}
+
+\subsection{Information Geometry of the Feasible Set}
+
+The projection family and noise models induce a Fisher information metric on $\mathcal{A}$:
+\[
+g_F(X) = \sum_{i \in \mathcal{I}} D\Pi_i(X)^* \Sigma_i^{-1} D\Pi_i(X).
+\]
+Directions in $\ker g_F(X)$ are observationally invisible. Two structural properties
+follow. \emph{Metric monotonicity}: adding sensor $j$ gives
+$g_F^{\mathrm{new}} \succeq g_F$. \emph{Dynamical lifting}: a null direction $v$ at
+$t = 0$ may satisfy $g_F^{(\tau)}(X)(v,v) > 0$ under the time-extended metric, because
+the flow $\Phi_F^\tau$ transports null directions into visible ones. The formal
+development of both properties is in Appendix~\ref{app:fisher}.
+
+\subsection{Information Volume and Closure}
+
+The Fisher metric induces a volume form on the regular strata of $\mathcal{F}$. Define
+the information volume $\mathrm{Vol}_F(\mathcal{F}) = \int_{\mathcal{F}_{\mathrm{reg}}}
+d\mathrm{Vol}_{g_F}$. At closure the following collapse simultaneously:
+\[
+\mathrm{Vol}_F(\mathcal{F}) \to 0,\quad
+\dim H^0 \to 1,\quad
+H^1 \to 0,\quad
+S_{\mathrm{RSVP}}(X^*) \text{ minimized.}
+\]
+These are not independent criteria but one condition in four languages.
+Full equivalence is established in Appendix~\ref{app:fisher}.
+
+\subsection{Dynamics and Non-Convex Structure}
+
+While $\Omega_{\mathrm{obs}}$ is often convex, $\Gamma$ is generically non-convex.
+Their intersection $\mathcal{F}$ may exhibit disconnected components, curved boundaries,
+and trajectory-induced foliations, corresponding under the equivalence to distinct
+trajectory classes and non-trivial $H^1$ classes. Section~\ref{sec:disambiguation}
+shows that trajectory constraints eliminate these components by enforcing temporal
+separation.
+
+\subsection{Interpretation}
+
+The feasible set is the space of all worlds compatible with the evidence and the laws of
+motion. The task of Yarncrawler is not statistical prediction but geometric contraction:
+reduce $\dim_{\mathrm{eff}}(\mathcal{F})$ until $|\mathcal{F}| = 1$. Under the
+Sheaf-Variational Equivalence, this is exactly the process of repairing $\mathcal{S}_\Pi$
+until a unique global section exists.
+
+%% ============================================================
+\section{The Consistency Operator and the Identifiability Theorem}
+\label{sec:identifiability}
+%% ============================================================
+
+\subsection{Setup and Standing Assumptions}
+
+Let $\mathcal{X} = H^1(\Omega) \times H^1(\Omega;\mathbb{R}^3) \times L^2(\Omega)$
+with the product Sobolev topology (Appendix~\ref{app:frechet}). A symmetry group $G$
+acts smoothly, properly, and isometrically on $\mathcal{X}$; the quotient $\Xmod$ is
+Hausdorff. We work in $\Xmod$ throughout.
+
+\begin{assumption}[Projection Regularity]
+\label{ass:regularity}
+Each $\Pi_i : \mathcal{X} \to \mathcal{Y}_i$ is a bounded linear map to a separable
+Hilbert space $\mathcal{Y}_i$.
+\end{assumption}
+
+\begin{assumption}[Noise Model]
+\label{ass:noise}
+Each observation satisfies $y_i = \Pi_i(X^*) + \eta_i$ where $\|\eta_i\|_{\mathcal{Y}_i}
+\le \epsilon_i$ almost surely.
+\end{assumption}
+
+\begin{assumption}[Regularizer Structure]
+\label{ass:regularizer}
+The regularizer takes the form
+\[
+\mathcal{R}(X) = \mathcal{R}_{\mathrm{RSVP}}(X)
++ \lambda_{\mathrm{eco}}\,\mathcal{R}_{\mathrm{eco}}(X)
++ \lambda_{\mathrm{civ}}\,\mathcal{R}_{\mathrm{civ}}(X)
+\]
+where $\mathcal{R}_{\mathrm{RSVP}}$ measures violation of the RSVP field equations in
+$L^2$, $\mathcal{R}_{\mathrm{eco}}$ is zero on ecologically admissible configurations
+and strictly positive off them, and $\mathcal{R}_{\mathrm{civ}}$ is zero on
+civilizationally admissible configurations and strictly positive off them.
+\end{assumption}
+
+\begin{assumption}[Admissibility Region]
+\label{ass:admissibility}
+The admissible set $\mathcal{A} = \{[X] \in \Xmod \mid \mathcal{R}(X) < \infty\}$
+is a closed convex subset of $\Xmod$, and $\mathcal{R}$ restricted to $\mathcal{A}$
+is strictly convex along geodesics.
+\end{assumption}
+
+\begin{assumption}[Banach Realization]
+\label{ass:banach}
+There exists a Banach space $\mathcal{B}$ and continuous embedding
+$\iota : \mathcal{X} \hookrightarrow \mathcal{B}$ such that $\mathcal{A}$ is closed and
+convex in $\mathcal{B}$, each $\Pi_i$ extends to a bounded linear operator on
+$\mathcal{B}$, and $\mathcal{R}$ extends to a proper lower semicontinuous functional on
+$\mathcal{B}$.
+\end{assumption}
+
+In practice one takes $\mathcal{B} = \mathcal{X}$ itself, which is already a Hilbert
+space. The Banach realization is stated separately to make the compactness and weak
+convergence arguments in Appendix~\ref{app:identifiability} self-contained.
+
+\subsection{The Feasible Set}
+
+\begin{definition}[Observation-Consistent Set]
+\[
+\Omega_{\mathrm{obs}} = \{ [X] \in \mathcal{A} \mid
+\|\Pi_i(X) - y_i\|_{\mathcal{Y}_i} \le \epsilon_i \;\; \forall i \in \mathcal{I} \}.
+\]
+\end{definition}
+
+\begin{lemma}[Non-emptiness]
+Under Assumptions~\ref{ass:regularity} and \ref{ass:noise}, $X^* \in \Omega_{\mathrm{obs}}$
+almost surely.
+\end{lemma}
+\begin{proof}
+$\|y_i - \Pi_i(X^*)\| = \|\eta_i\| \le \epsilon_i$ almost surely by Assumption~\ref{ass:noise}.
+$\square$
+\end{proof}
+
+\begin{lemma}[Closedness and Convexity]
+Under Assumptions~\ref{ass:regularity} and \ref{ass:admissibility},
+$\Omega_{\mathrm{obs}}$ is a closed convex subset of $\mathcal{A}$.
+\end{lemma}
+\begin{proof}
+Each constraint set is closed (continuity of $\Pi_i$) and convex (linearity of $\Pi_i$,
+convexity of norm ball). Intersection of closed convex sets is closed and convex.
+$\square$
+\end{proof}
+
+The dynamically admissible set $\Gamma$ is introduced as a named object here; its full
+definition and construction are given in Section~\ref{sec:disambiguation}. The
+\emph{feasible set} is $\mathcal{F} = \Omega_{\mathrm{obs}} \cap \Gamma$.
+
+\subsection{The Consistency Operator}
+
+\begin{definition}[Consistency Operator]
+\[
+\mathcal{C}(X) = \arg\min_{[X'] \in \mathcal{A}}
+\left[ \sum_{i \in \mathcal{I}} \|\Pi_i(X') - y_i\|_{\mathcal{Y}_i}^2
++ \mathcal{R}(X') \right].
+\]
+\end{definition}
+
+$\mathcal{C}$ maps $\mathcal{A}$ to $\mathcal{A}$: the optimization is constrained to the
+admissible region. A configuration minimizing projection error but violating RSVP equations
+or ecological plausibility is not a candidate world-state. The regularizer defines the
+domain of the operator, not a preference over an unconstrained space.
+
+\begin{lemma}[Well-definedness]
+Under Assumptions~\ref{ass:regularity}--\ref{ass:banach}, $\mathcal{C}(X)$ exists and is
+unique for every $[X] \in \mathcal{A}$.
+\end{lemma}
+\begin{proof}
+The objective $f(X') = \sum_i \|\Pi_i(X') - y_i\|^2 + \mathcal{R}(X')$ is continuous,
+strictly convex (sum of convex functions plus strictly convex $\mathcal{R}$), and coercive
+on $\mathcal{A}$. A continuous strictly convex coercive function on a closed convex set
+attains its minimum at a unique point. Full proof in Appendix~\ref{app:identifiability}.
+$\square$
+\end{proof}
+
+\subsection{The Identifiability Theorem}
+
+The induced map of the projection family on the quotient is:
+\[
+\Ftil : \Xmod \longrightarrow \prod_{i \in \mathcal{I}} \mathcal{Y}_i, \qquad
+[X] \mapsto (\Pi_i(X))_{i \in \mathcal{I}}.
+\]
+By definition of $\sim$, $\Ftil$ is well-defined.
+
+\begin{theorem}[Yarncrawler Identifiability]
+\label{thm:identifiability}
+Under Assumptions~\ref{ass:regularity}--\ref{ass:banach}, the consistency operator
+$\mathcal{C}$ has a unique fixed point $[X^*] \in \mathcal{F}$ if and only if $\Ftil$
+is injective on $\mathcal{F}$.
+\end{theorem}
+
+\begin{proof}
+$(\Rightarrow)$ Suppose $\mathcal{C}$ has a unique fixed point $[X^*] \in \mathcal{F}$.
+If $\Ftil$ were not injective on $\mathcal{F}$, there exist distinct $[X],[X'] \in \mathcal{F}$
+with $\Pi_i(X) = \Pi_i(X')$ for all $i$. Both achieve zero projection residual in the
+objective. The objective reduces to $\mathcal{R}(X)$ vs.\ $\mathcal{R}(X')$. Either
+$\mathcal{R}(X) = \mathcal{R}(X')$---violating strict convexity of $\mathcal{R}$ on
+$\mathcal{A}$ (Assumption~\ref{ass:admissibility})---or one has strictly smaller
+regularizer value, making the other not a minimizer. Either way contradicts uniqueness.
+
+$(\Leftarrow)$ If $\Ftil$ is injective on $\mathcal{F}$, then $\Omega_{\mathrm{obs}} \cap
+\mathcal{F}$ contains at most one point. By Lemma 5.1, $[X^*] \in \Omega_{\mathrm{obs}}$;
+by definition $[X^*] \in \Gamma$; hence $[X^*] \in \mathcal{F}$. Injectivity forces
+$|\mathcal{F}| = 1$. At $[X^*]$ all projection residuals are within tolerance and
+$\mathcal{R}(X^*)$ is minimized over the singleton $\mathcal{F}$. Hence
+$\mathcal{C}([X^*]) = [X^*]$. $\square$
+\end{proof}
+
+\subsection{The Corollary on Diagnosable Failure Modes}
+
+\begin{corollary}
+\label{cor:failures}
+Identifiability fails in exactly two geometrically distinguishable ways:
+
+\emph{(i) Projection degeneracy}: $\Ftil$ is not injective on $\mathcal{F}$. Two distinct
+admissible world-states produce identical observations. This failure is intrinsic to the
+sensor family and cannot be resolved by the regularizer.
+
+\emph{(ii) Regularizer flatness}: $\mathcal{R}$ is not strictly convex on $\mathcal{F}$.
+The regularizer assigns equal admissibility to configurations the sensors cannot
+distinguish. This failure is intrinsic to the model class.
+
+These failure modes are geometrically distinguishable: projection degeneracy corresponds
+to a non-trivial kernel of $\Ftil|_{\mathcal{F}}$; regularizer flatness corresponds to a
+flat direction of $\mathcal{R}$ within $\mathcal{F}$. They can coexist.
+\end{corollary}
+
+\subsection{Why the Quotient Structure Is Not Optional}
+
+In a standard inverse problem one works in $\mathcal{X}$ directly. But in the Yarncrawler
+setting, two configurations related by a gauge transformation or coordinate
+reparametrization represent the same physical situation. Working in $\mathcal{X}$ rather
+than $\Xmod$ would make uniqueness false by construction---there would always be a
+continuum of configurations achieving the same objective, related by the action of $G$.
+
+An $L^2$ uniqueness statement conflates field-theoretic gauge redundancy with measurement
+noise. A measure-theoretic statement collapses the geometry of $\Xmod$ into observational
+statistics and loses the regularizer's role as an admissibility condition. The
+symmetry-group formulation is not a choice among equivalent formalisms; it is the only
+formulation that preserves the semantic commitments of the framework.
+
+%% ============================================================
+\section{Trajectory Learning and the Dynamical Admissibility Set}
+\label{sec:disambiguation}
+%% ============================================================
+
+\subsection{The Central Obstruction}
+
+Section~\ref{sec:identifiability} established that $\mathcal{C}$ has a unique fixed point
+iff $\Ftil$ is injective on $\mathcal{F}$. This condition is clean but generically unmet.
+Under realistic sensing, $\Omega_{\mathrm{obs}}$ is high-dimensional. Projection degeneracy
+is the default condition, not a pathological case.
+
+The resolution cannot come from within the static framework. What is required is a
+constraint of a different kind---one operating not on the configuration $X$ at a single
+time but on the trajectory through which $X$ was reached. The dynamical admissibility set
+$\Gamma$ is not an additional observation; it is a restriction on which configurations are
+reachable under the dynamics of the world. Two configurations in $\Omega_{\mathrm{obs}}$
+that are observationally indistinguishable at one moment may evolve under those dynamics
+into configurations that are distinguishable at a later moment.
+
+\subsection{The Path Space and the Stochastic Kernel}
+
+\begin{definition}[Discrete Path Space]
+$\mathcal{P}_\Delta = \{ \mathbf{X} = ([X_0],[X_1],\ldots,[X_N]) \mid [X_k] \in \mathcal{A},\;
+N = \lfloor T/\Delta \rfloor \}$.
+\end{definition}
+
+\begin{definition}[Stochastic Transition Kernel]
+$T_\Delta : \mathcal{A} \to \mathcal{P}(\mathcal{A})$, where for each $[X] \in \mathcal{A}$,
+$T_\Delta([X],\cdot)$ specifies the distribution over one-step successors under the world
+dynamics at resolution $\Delta$.
+\end{definition}
+
+\begin{definition}[Dynamically Admissible Set]
+\[
+\Gamma = \left\{ [X] \in \mathcal{A} \;\middle|\;
+\exists\, [X_0] \in \mathcal{A},\; \exists\, k \ge 0 \text{ s.t. }
+\mu_{X_0}^{T_\Delta}([X_k] = [X]) > 0 \right\}.
+\]
+$\Gamma$ is the support of the union of all admissible path measures. It is a geometric
+object---a subset of $\mathcal{A}$---not a probabilistic one.
+\end{definition}
+
+\begin{lemma}[Invariance of $\Gamma$]
+If $T_\Delta$ is time-homogeneous and $\mathcal{A}$ is forward-invariant under $T_\Delta$,
+then $\Gamma \subseteq \mathcal{A}$ and $\Gamma$ is forward-invariant.
+\end{lemma}
+
+\subsection{The Deterministic Limit and Tangent Bundle Constraint}
+
+\begin{assumption}[Generator Regularity]
+\label{ass:generator}
+There exists a Lipschitz vector field $F(\cdot\,;\theta) : \mathcal{A} \to T\mathcal{A}$
+such that $T_\Delta([X],\cdot) \Rightarrow \delta_{[X]+\Delta F([X];\theta)}$ weakly as
+$\Delta \to 0$.
+\end{assumption}
+
+In the zero-noise limit, the dynamically admissible set reduces to:
+\[
+\Gamma^0 = \left\{ [X] \in \mathcal{A} \;\middle|\;
+\exists\, [X_0] \in \mathcal{A},\; \exists\, t \in [0,T] \text{ s.t. }
+\Phi^t_F([X_0]) = [X] \right\}
+\]
+where $\Phi^t_F$ is the flow of $F$ at time $t$.
+
+\begin{definition}[Admissible Tangent Cone]
+For $[X] \in \Gamma^0$:
+$\mathcal{T}_{[X]}\Gamma^0 = \{v \in T_{[X]}\mathcal{A} \mid v = F([X];\theta)
+\text{ for some } \theta \in \Theta\}$.
+\end{definition}
+
+\begin{proposition}[Tangent Dimension Reduction]
+If $\Theta \subset \mathbb{R}^p$, then $\dim \mathcal{T}_{[X]}\Gamma^0 \le p$.
+In particular, if $p < \dim T_{[X]}\mathcal{A}$, the dynamical constraint reduces the
+effective dimensionality of admissible directions from $\dim T_{[X]}\mathcal{A}$ to
+at most $p$.
+\end{proposition}
+\begin{proof}
+The map $\theta \mapsto F([X];\theta)$ is smooth from $\Theta \subset \mathbb{R}^p$ to
+$T_{[X]}\mathcal{A}$; its image has dimension at most $p$ by the rank theorem. $\square$
+\end{proof}
+
+\subsection{Trajectory Learning from Before/After Pairs}
+
+\begin{definition}[Fragment-Consistent Parameter Set]
+Given fragment $(y_{\mathrm{before}}, y_{\mathrm{after}}, \tau)$:
+\[
+\Theta_{(y_b,y_a,\tau)} = \left\{ \theta \in \Theta \;\middle|\;
+\exists\, [X_b] \in \Omega_{\mathrm{obs}}(y_b),\;
+\Pi_i(\Phi^\tau_F([X_b])) \in B_{\epsilon_i}(y_{a,i})\; \forall i \right\}.
+\]
+Given training set $\mathcal{D}$, the learned parameter set is
+$\hat{\Theta} = \bigcap_{n} \Theta_{(y_b^{(n)}, y_a^{(n)}, \tau^{(n)})}$.
+\end{definition}
+
+\textbf{The operator class library.} In practice $F(\cdot\,;\theta)$ is decomposed as:
+\[
+F([X];\theta) = \sum_{k=1}^K \alpha_k([X]) \cdot F_k([X];\theta_k)
+\]
+where each $F_k$ corresponds to a named ecological or civilizational process---forest
+succession, urban expansion, agricultural cycling, infrastructure decay, hydrological
+change, demographic transition. Each $F_k$ is learned from before/after pairs in which
+that process is dominant. The activation weights $\alpha_k([X]) \ge 0$ satisfy
+$\sum_k \alpha_k = 1$.
+
+\subsection{The Dynamical Disambiguation Theorem}
+
+\begin{definition}[Trajectory Separation]
+Two configurations $[X],[X'] \in \Omega_{\mathrm{obs}}$ are \emph{trajectory-separated} by
+$F(\cdot\,;\hat{\theta})$ at time $\tau > 0$ if
+\[
+\left\| \Ftil(\Phi^\tau_F([X];\hat{\theta})) - \Ftil(\Phi^\tau_F([X'];\hat{\theta}))
+\right\|_{\prod_i \mathcal{Y}_i} > \epsilon
+\]
+for some $\epsilon > 0$ depending only on the noise levels $\{\epsilon_i\}$.
+\end{definition}
+
+\begin{theorem}[Dynamical Disambiguation]
+\label{thm:disambiguation}
+Under Assumptions~\ref{ass:regularity}--\ref{ass:generator}, if $|\Omega_{\mathrm{obs}}| > 1$
+and every pair $[X],[X'] \in \Omega_{\mathrm{obs}}$ with $[X] \ne [X']$ is
+trajectory-separated by $F(\cdot\,;\hat{\theta})$ at some $\tau \in (0,T]$, then
+$|\mathcal{F}| = |\Omega_{\mathrm{obs}} \cap \Gamma^0| = 1$.
+\end{theorem}
+
+\begin{proof}
+Let $[X],[X'] \in \Omega_{\mathrm{obs}} \cap \Gamma^0$ be distinct. Since both lie in
+$\Gamma^0$, both lie on integral curves of $F(\cdot\,;\hat{\theta})$. By trajectory
+separation, there exists $\tau \in (0,T]$ such that the forward-evolved projections differ
+by more than $\epsilon$. At time $\tau$, observed data $y(\tau)$ must lie within $\epsilon_i$
+of the true trajectory; therefore at most one of $[X(\tau)],[X'(\tau)]$ lies in
+$\Omega_{\mathrm{obs}}(y(\tau))$. The true state $[X^*(\tau)] \in \Omega_{\mathrm{obs}}(y(\tau))$
+by Lemma 5.1 at time $\tau$. Applying to all pairs eliminates all but $[X^*]$.
+Hence $|\mathcal{F}| = 1$. $\square$
+\end{proof}
+
+\subsection{Joint Identifiability}
+
+\begin{corollary}[Joint Identifiability]
+The consistency operator $\mathcal{C}$ restricted to $\mathcal{F}$ has a unique fixed point
+if either: (i) $\Ftil$ is injective on $\mathcal{F}$; (ii) every pair in
+$\Omega_{\mathrm{obs}} \cap \Gamma^0$ is trajectory-separated; or (iii) both conditions
+hold partially. The sufficient condition for (iii) is that $\dim(\Omega_{\mathrm{obs}}/\ker\Ftil)
++ \dim(\Gamma^0/\Gamma^0_{\mathrm{indist}}) \ge \dim\Omega_{\mathrm{obs}}$.
+\end{corollary}
+
+Case (iii) is the generic realistic scenario: sensors eliminate most ambiguity, trajectory
+learning eliminates the residual. The two mechanisms are additive in their dimensional
+reduction, not competing.
+
+%% ============================================================
+\section{The Inversion Layer}
+\label{sec:inversion}
+%% ============================================================
+
+\preliminary{
+\textbf{This section develops the inversion layer as an architecture for approximating the
+consistency operator in practice, without conflating the approximation with the operator
+itself.}
+
+\medskip
+\textbf{7.1 Role Specification.}
+States the division of labor precisely: the inversion layer is not the model, it is a
+proposal mechanism. Its role is to place the iterative optimization in the basin of the
+correct fixed point. The consistency operator $\mathcal{C}$ is the model. The encoder is
+a high-entropy initializer; the physics-constrained forward model is the contraction
+operator. Explains why conflating encoder with solution is the failure mode of standard
+encoder-decoder stacks: doing so makes the failure modes of Corollary~\ref{cor:failures}
+undiagnosable. Separating proposal from decision preserves the falsifiability structure.
+
+\medskip
+\textbf{7.2 The Encoder as Approximate Posterior.}
+Defines the encoder as implementing an approximate posterior:
+\[
+q_\phi(X \mid \{y_i\}) \approx p(X \mid \{y_i\}) \propto
+\exp\!\left(-\sum_i d_i(\Pi_i(X), y_i) - \mathcal{R}(X)\right).
+\]
+The encoder approximates this distribution, not solves it. The forward-consistency loop
+is what contracts that distribution. Discusses the variational inference interpretation:
+the encoder minimizes KL divergence from the true posterior, subject to the architectural
+constraints of the learned network. Notes that because $\mathcal{R}$ encodes physical
+admissibility, the approximate posterior is already biased toward physically plausible
+configurations---the encoder does not need to learn physics from scratch.
+
+\medskip
+\textbf{7.3 The Refinement Loop.}
+Specifies the five-step loop:
+\begin{enumerate}
+\item Encoder samples $X^{(0)} \sim q_\phi(\cdot \mid \{y_i\})$
+\item Forward model computes $\{\hat{y}_i\} = \{\Pi_i(X^{(0)})\}$
+\item Residuals $\{r_i\} = \{d_i(\hat{y}_i, y_i)\}$ drive gradient update
+\item $X^{(k+1)} = \mathcal{C}(X^{(k)})$ (one step of projected gradient descent on $f$)
+\item Iterate until $\dim \mathcal{F} < \varepsilon$ (closure criterion from
+  Section~\ref{sec:closure})
+\end{enumerate}
+Discusses convergence: Theorem~\ref{thm:identifiability} guarantees a unique fixed point
+when conditions hold; the refinement loop approximates the path to that fixed point.
+Convergence rate depends on the condition number of the Hessian of $f$ at $[X^*]$, which
+is related to the Fisher information geometry of Appendix~\ref{app:fisher}.
+
+\medskip
+\textbf{7.4 The Categorical Structure of Multi-Modal Fusion.}
+Develops the secondary, structural description: the encoder as a collection of
+modality-specific proposal maps composed via a lax monoidal structure over
+$\prod_i \mathcal{Y}_i$. Each modality-specific encoder $q_\phi^{(i)}$ produces a
+marginal proposal; the fusion map combines them before the consistency operator acts.
+This describes how multi-modal proposals are combined, but the explanatory weight rests
+on the posterior formulation of Section 7.2, not on the categorical structure. The
+categorical framing is reserved for structural analysis of how proposals compose across
+scales in Section~\ref{sec:deployment}.
+
+\medskip
+\textbf{7.5 The Forward Model.}
+Specifies what the forward model must compute: given a proposed $[X]$, produce
+$\{\Pi_i(X)\}$ using the projection operators defined in Section~\ref{sec:projections}.
+For infrared and LiDAR, this is direct evaluation of the operators. For RGB, it is a
+volume rendering pass. For audio, it requires solving the RSVP field equations forward in
+time from $X$ to produce $\partial_t S$ and $\nabla \cdot \mathbf{v}$ at microphone
+locations. Discusses the computational cost of each projection and strategies for
+approximation: learned surrogate models for the expensive projections (audio, photonic
+strip), analytic projections for the cheap ones (infrared boundary traces).
+
+\medskip
+\textbf{7.6 Why Not End-to-End.}
+Argues explicitly against treating the encoder as the final answer. An end-to-end system
+collapses proposal and decision into a single learned map from $\{y_i\}$ to $[X]$.
+This is equivalent to replacing $\mathcal{C}$ with the encoder and discarding the
+forward model. The result is a system that cannot diagnose its own failure modes, cannot
+be updated when new sensors are added (without retraining), and cannot be falsified by
+physical constraints. The separation of encoder from consistency operator is not an
+engineering choice---it is required by the identifiability structure.
+}
+
+%% ============================================================
+\section{Closure: Definition, Criteria, and Detection}
+\label{sec:closure}
+%% ============================================================
+
+\preliminary{
+\textbf{This section defines closure operationally and proves that the three closure
+criteria are equivalent under the main theorems.}
+
+\medskip
+\textbf{8.1 The Unified Definition.}
+A state $[X^*] \in \Xmod$ is \emph{closed} if it is the unique fixed point of
+$\mathcal{C}$ and lies on a trajectory of $T_\Delta$ consistent with all observed
+fragments. This definition is then decomposed into three conditions---projection parity,
+dynamical stability, counterfactual consistency---which are the operational handles on
+closure in a deployed system.
+
+\medskip
+\textbf{8.2 The Three Conditions.}
+\textit{Projection parity}: $\|\Pi_i(X^*) - y_i\|_{\mathcal{Y}_i} \le \epsilon_i$ for all
+$i \in \mathcal{I}$. This is the basic requirement that the fixed point is consistent with
+all current observations. It is verifiable in real time.
+
+\textit{Dynamical stability}: $[X^*] \in \Gamma^0$, meaning $[X^*]$ lies on an integral
+curve of $F(\cdot\,;\hat{\theta})$. Equivalently, the fixed point is not merely consistent
+with instantaneous observations but is reachable under the learned dynamics. This rules
+out configurations that happen to fit current observations but could not have been produced
+by the world's actual trajectory.
+
+\textit{Counterfactual consistency}: the system must be stable under re-projection. If
+$[X^*]$ is simulated forward under $F$ for time $\tau$ and the resulting
+$[\hat{X}^*(\tau)]$ is projected back to observation space, the result must lie within
+$\epsilon_i$ of the actual observations at time $\tau$. This is the strongest condition:
+it requires not just that the fixed point is consistent with past observations but that
+its forward trajectory is consistent with future observations.
+
+\medskip
+\textbf{8.3 Equivalence Theorem.}
+States and proves that the three conditions are equivalent under the assumptions of
+Theorems~\ref{thm:identifiability} and \ref{thm:disambiguation}. The key step is showing
+that each condition implies $\dim \mathcal{F} = 0$, and that $\dim \mathcal{F} = 0$
+implies all three. The proof uses the identification from Section~\ref{sec:equivalence}:
+the three conditions are projection parity ($\Omega_{\mathrm{obs}}$ tight), dynamical
+stability ($\Gamma$ non-trivially intersecting $\Omega_{\mathrm{obs}}$), and counterfactual
+consistency (the intersection is trajectory-stable, not just pointwise). These are three
+faces of $|\mathcal{F}| = 1$.
+
+\medskip
+\textbf{8.4 Operational Detection.}
+Closure is operationally detectable as stability of $[X^*]$ under perturbation of
+$\epsilon_i$: if tightening any constraint by $\delta\epsilon_i$ does not move the fixed
+point, closure has been achieved. This gives a practical stopping criterion for the
+refinement loop of Section~\ref{sec:inversion}. Discusses the rate of convergence to
+closure as a function of sensor density and trajectory fragment coverage, connecting to
+the Fisher information geometry of Appendix~\ref{app:fisher}.
+
+\medskip
+\textbf{8.5 Closure and Entropy Collapse.}
+Connects the closure detection criterion to the entropy identification of
+Section~\ref{sec:equivalence}: at closure, $\vol_{\mathrm{Fisher}}(\mathcal{F}) = 0$,
+$H^1(\mathcal{U},\mathcal{S}_\Pi) = 0$, $\dim H^0 = 1$, and $S_{\mathrm{RSVP}}(X^*)$
+is minimized subject to admissibility---simultaneously and equivalently. The closed state
+is not a best estimate; it is the unique trajectory consistent with all projections and
+admissible dynamics. No alternative history remains consistent with the evidence.
+
+\medskip
+\textbf{8.6 Failure Mode Revisited.}
+Revisits Corollary~\ref{cor:failures} in the light of the equivalence theorem. Projection
+degeneracy ($H^1 \ne 0$) means closure cannot be achieved by any amount of additional
+observation at the current moment---it requires either new sensor modalities or temporal
+extension of the cover. Regularizer flatness means closure cannot be achieved by any
+sensor---it requires revision of the model class $\mathcal{A}$. These are the only two
+ways a Yarncrawler system can fail to converge, and both are diagnosable by the criteria
+of this section.
+}
+
+%% ============================================================
+\section{Deployment Scales as Feasible Set Geometry}
+\label{sec:deployment}
+%% ============================================================
+
+\preliminary{
+\textbf{This section unifies planetary, regional, and site-scale deployment as the same
+system with different geometries of the feasible set.}
+
+\medskip
+\textbf{9.1 The Unified Framework.}
+States the central claim: all three deployment scales are instances of the same
+consistency operator $\mathcal{C}$ with different $(\Pi_i, \mathcal{N}_i, \epsilon_i)$
+profiles. The scale is not a separate architectural choice---it is a parameter of the
+noise model. A planetary-scale deployment has large $\epsilon_i$ (sparse, low-frequency
+observations); a site-scale deployment has small $\epsilon_i$ (dense, high-frequency
+observations). The feasible set $\Omega_{\mathrm{obs}}$ has different geometry at each
+scale, but the identifiability theorem and disambiguation theorem apply uniformly.
+
+\medskip
+\textbf{9.2 Planetary Scale.}
+Sensors: satellite multispectral imagery (RGB and infrared), occasional LiDAR passes,
+no audio, no photonic strips. Temporal resolution: weeks to months. Spatial resolution:
+10--100 meters per pixel. Noise levels $\epsilon_i$ are large. Consequence: $\Omega_{\mathrm{obs}}$
+is high-dimensional and weakly constrained. The system operates in the high-entropy
+proposal regime, relying heavily on $\mathcal{R}$ to restrict $\mathcal{F}$. Trajectory
+learning carries most of the disambiguation burden: seasonal cycles, annual land cover
+change, and multi-year succession patterns provide the operator class library entries that
+contract $\Gamma$. States the modified identifiability condition for this regime: the
+projection family need not be complete (Proposition~\ref{prop:completeness} fails at
+planetary scale due to missing audio and strip modalities), but trajectory learning can
+compensate via Corollary 6.4(iii).
+
+\medskip
+\textbf{9.3 Regional Scale.}
+Sensors: aerial multispectral and LiDAR surveys, possibly distributed acoustic sensors,
+periodic photonic strip transects. Temporal resolution: days to weeks. Spatial resolution:
+1--10 meters. Noise levels intermediate. Consequence: $\Omega_{\mathrm{obs}}$ contracts
+along spatial dimensions but remains temporally undersampled. The system requires both
+static projection richness (more modalities available than at planetary scale) and
+trajectory learning. The operator class library is expanded: finer-grained process
+operators for agricultural change, urban growth, forest disturbance. Discusses the
+transition from planetary to regional scale as a cover refinement: the planetary-scale
+$\mathcal{S}_\Pi$ restricts to the regional-scale $\mathcal{S}_{\Pi'}$ on the finer
+cover, with $H^1$ classes killed by the additional modalities.
+
+\medskip
+\textbf{9.4 Site Scale.}
+Sensors: fixed arrays including all five modalities at high spatial and temporal density.
+Temporal resolution: seconds to minutes. Spatial resolution: centimeters to meters. Noise
+levels $\epsilon_i$ small. Consequence: $\Omega_{\mathrm{obs}}$ collapses rapidly toward
+a singleton. The system achieves genuine closure and can generate counterfactual
+re-projections for real-time validation. Discusses the calibration loop: at site scale,
+re-projection residuals (forward model outputs vs.\ actual sensor readings) provide a
+continuous closure detection signal, implementing the operational criterion of
+Section~\ref{sec:closure}.
+
+\medskip
+\textbf{9.5 Multi-Scale Fusion.}
+The three scales are not separate deployments---they are nested constraint systems. States
+the Scale Consistency Theorem: if the noise models $\{\mathcal{N}_i\}$ are correctly
+specified at each scale, the fixed point $[X^*]$ is invariant to which scale drives the
+final refinement step. Proves this as a consequence of the functor $\Psi$: the
+restriction map from the finer to the coarser sheaf preserves the global section, so the
+fixed point at site scale restricts to the fixed point at regional scale and then to the
+fixed point at planetary scale. In practice this means planetary constraints provide the
+prior on $\mathcal{R}$, regional constraints initialize $q_\phi$, and site constraints
+drive the refinement loop to closure.
+
+\medskip
+\textbf{9.6 Relaxing the Completeness Assumption.}
+Returns to Proposition~\ref{prop:completeness} and asks what happens when the full
+five-modality family is not available. Characterizes the residual ambiguity in
+$\Omega_{\mathrm{obs}}$ as a function of which modalities are missing: missing audio
+leaves $\partial_t S$ and $\nabla \cdot \mathbf{v}$ unconstrained (the entropy production
+and flow divergence degrees of freedom remain free); missing LiDAR leaves the level-set
+geometry of $\Phi$ ambiguous; and so on. Each missing modality corresponds to a direction
+in $\ker \Ftil|_{\mathcal{F}}$ that can only be resolved by trajectory learning. This
+gives a sensor selection criterion grounded in the geometry of the feasible set: the most
+valuable next sensor to add is the one that closes the largest-dimensional remaining
+direction in $\ker \Ftil|_{\mathcal{F}}$.
+}
+
+%% ============================================================
+\section{Relation to Prior Work}
+\label{sec:related}
+%% ============================================================
+
+\preliminary{
+\textbf{This section positions Yarncrawler against four traditions: data assimilation,
+inverse rendering, digital twin systems, and categorical/sheaf-theoretic semantics.
+The goal is not to survey those traditions but to identify precisely where Yarncrawler
+departs from each and why the departure is necessary.}
+
+\medskip
+\textbf{10.1 Data Assimilation and Ensemble Methods.}
+Data assimilation---especially ensemble Kalman filtering (EnKF) and variational methods
+(4D-Var)---solves the same broad problem: estimating a hidden state from observations
+over time. The key differences are: (a) data assimilation works in $\mathcal{X}$ rather
+than $\Xmod$, treating gauge redundancies as noise rather than structure; (b) the
+regularizer in data assimilation is a prior distribution, not an admissibility condition---
+it expresses preference, not exclusion; (c) data assimilation has no sheaf structure:
+there is no notion of local charts, restriction maps, or cohomological obstruction. The
+Yarncrawler Identifiability Theorem has no counterpart in standard data assimilation
+because the quotient structure is absent. Notes where EnKF and 4D-Var are special cases:
+in the linear Gaussian regime with trivial symmetry group ($G = \{e\}$), $\mathcal{C}$
+reduces to the Kalman update.
+
+\medskip
+\textbf{10.2 Inverse Rendering and Neural Radiance Fields.}
+Neural radiance fields (NeRF) and related inverse rendering methods solve the problem of
+reconstructing a 3D scene from 2D images. The RGB projection operator $\Pi_{\mathrm{RGB}}$
+defined in Section~\ref{sec:projections} is the NeRF rendering integral. The differences
+are: (a) NeRF has no dynamics---it is a purely static reconstruction method with no
+$\Gamma$; (b) NeRF has no RSVP field structure---the scene representation is a learned
+radiance function, not a physical field triple; (c) NeRF has no regularizer encoding
+physical admissibility. The Yarncrawler framework strictly generalizes NeRF: the RGB
+projection is one chart of the cover, and NeRF is the degenerate case where only that
+chart is available and dynamics are absent.
+
+\medskip
+\textbf{10.3 Digital Twin Systems.}
+Digital twin literature proposes maintaining synchronized virtual replicas of physical
+systems. The standard approach is object-ontological: the twin represents a collection of
+objects (buildings, trees, vehicles) whose properties are updated from sensor data.
+Yarncrawler departs in three ways: (a) the primary ontology is trajectory-based, not
+object-based---objects emerge as persistent patterns in field trajectories, not as primary
+entities; (b) the twin is not updated by recognized objects but by the consistency
+operator acting on the full quotient configuration space; (c) digital twins have no
+identifiability theory---there is no formal account of when a twin uniquely determines
+its physical counterpart. The Yarncrawler Identifiability Theorem provides exactly this.
+
+\medskip
+\textbf{10.4 Categorical and Sheaf-Theoretic Semantics.}
+Sheaf theory has been applied to contextuality in quantum mechanics, to distributed
+knowledge structures in multi-agent systems, and to compositional semantics in natural
+language processing. Yarncrawler draws on these applications but departs in one crucial
+direction: the sheaf here is over a physical configuration space with RSVP field structure,
+not over an abstract semantic space. The stalks are not sets of propositions or probability
+distributions but Sobolev-class field configurations satisfying physical equations. The
+repair morphisms are not logical updates but steps of a variational optimization. The
+entropy identified with $H^1$ is a physical entropy field, not an information-theoretic
+measure. This grounding is what allows the framework to make contact with sensor physics
+and deployment engineering while retaining the full generality of the categorical structure.
+
+\medskip
+\textbf{10.5 The Yarncrawler Program.}
+Situates the present paper within the broader Yarncrawler program, which applies the same
+sheaf-repair-over-RSVP architecture to semantic systems, cultural evolution, ecological
+dynamics, and AI reasoning. The present paper is the inverse direction of that program:
+where the forward direction takes a state and asks how coherence is maintained under
+perturbation, the inverse direction takes observations and asks what state they demand.
+The Sheaf-Variational Equivalence of Section~\ref{sec:equivalence} is the theorem that
+makes the two directions formally dual rather than merely analogous.
+}
+
+%% ============================================================
+\section{Discussion: Closure as Epistemology}
+\label{sec:epistemology}
+%% ============================================================
+
+\preliminary{
+\textbf{This section draws the epistemological consequence of the framework and connects
+it to the broader Yarncrawler theoretical program.}
+
+\medskip
+\textbf{11.1 What Closure Means.}
+A closed Yarncrawler state is not a probabilistic estimate. It is not the most likely
+world-state given the observations. It is the unique world-state that is structurally
+demanded by the observations under the model class. The distinction is not merely
+philosophical: it has operational consequences. A probabilistic estimate can always be
+revised by new observations; a closed state cannot be revised without either adding new
+sensor modalities (killing new $H^1$ classes) or revising the model class (changing
+$\mathcal{A}$). The closed state is, in a precise sense, as certain as the model class
+allows.
+
+\medskip
+\textbf{11.2 Constraint Primacy.}
+The framework operationalizes a philosophical commitment: constraints are prior to
+completions. The world-state is not recovered by filling in a model template with
+observations---it is the unique configuration that survives after all constraints have
+been applied. This is the physical analogue of a principle that recurs throughout the
+Yarncrawler program: meaning emerges from constraint closure rather than from
+representation. The Sheaf-Variational Equivalence makes this precise: a world-state has
+meaning (is uniquely identified) exactly when the sheaf induced by its projections has a
+unique global section.
+
+\medskip
+\textbf{11.3 The RSVP Fields as Constraint Carriers.}
+The RSVP field triple $(\Phi, \mathbf{v}, S)$ is not merely a convenient parametrization
+of the configuration space. It is the structure that makes the regularizer $\mathcal{R}$
+non-arbitrary: the admissible set $\mathcal{A}$ is defined by the RSVP field equations,
+which encode physical conservation laws, ecological succession principles, and
+civilizational feasibility constraints. Without the RSVP structure, the regularizer would
+be an arbitrary penalty function and the closed state would be an artifact of the choice
+of penalty. With it, the closed state is the unique configuration consistent with the laws
+governing the domain. The framework is therefore not just an inference procedure---it is
+a theory of what it means for a physical configuration to be real.
+
+\medskip
+\textbf{11.4 Stigmergic Accumulation and the Refinement Loop.}
+Connects the refinement loop of Section~\ref{sec:inversion} to the stigmergic dynamics
+developed in the Yarncrawler forward direction. Each step of the refinement loop is a
+repair morphism in the sheaf $\mathcal{S}_\Pi$: it reduces a projection residual
+(trivializes a cocycle) and updates the field configuration toward closure. The
+accumulation of constraints over time---as more sensor observations arrive---is the
+variational analogue of stigmergic reinforcement: each new observation narrows the
+feasible set, and the trajectory of the refinement loop through configuration space is
+the path the crawler takes through the yarn. The loop converges when no more constraints
+can be satisfied---when the yarn has been fully crawled and the global section is unique.
+
+\medskip
+\textbf{11.5 Limits of the Framework.}
+Acknowledges three structural limits:
+
+\textit{Model class dependence}: the closed state is unique within $\mathcal{A}$, not in
+$\mathcal{X}$ or $\Xmod$. If $\mathcal{A}$ is misspecified---if the true world-state lies
+outside the admissible set---the consistency operator will converge to the closest
+admissible state, not the true state. Non-existence of a global section (discussed in
+Section~\ref{sec:closure}) is the signal that model revision is needed.
+
+\textit{Trajectory learning quality}: the dynamical disambiguation result depends on the
+quality of $F(\cdot\,;\hat{\theta})$. If the learned dynamics are systematically wrong---
+if the operator class library is missing a dominant process type---trajectory separation
+will fail for pairs of configurations that differ primarily along the missing process
+direction. This is detectable as residual $|\mathcal{F}| > 1$ after full sensor coverage.
+
+\textit{Computational tractability}: the consistency operator is defined as a global
+minimizer of a non-convex functional in infinite dimensions. The refinement loop
+approximates this with local gradient steps. Convergence to the global minimizer is
+guaranteed by the identifiability theorem only up to initialization quality; in practice
+multiple initializations from $q_\phi$ may be needed.
+
+\medskip
+\textbf{11.6 Forward and Inverse as Dual Inference.}
+Closes by returning to the duality of Section 1.3. The forward direction maintains
+coherence by repairing tears as they arise: it is the epistemic activity of a system
+embedded in a world it partially controls. The inverse direction reconstructs state from
+observations: it is the epistemic activity of a system observing a world it does not
+control. Most real intelligent systems do both simultaneously. The Yarncrawler framework
+is the unified theory of both activities---the sheaf $\mathcal{S}_\Pi$ is the common
+object, and the two directions are two ways of relating to it. A fully realized Yarncrawler
+system would alternate between the two: reconstructing the world-state from observations
+(inverse direction), projecting forward to predict future states (forward direction),
+comparing predictions to observations to detect model failure (closure detection), and
+repairing the model when failure is detected (sheaf repair). This is the complete
+epistemic loop of a system that both observes and maintains.
+}
+
+%% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+%% ============================================================
+
+\preliminary{
+\textbf{The conclusion is short---three to four paragraphs. It does not summarize the
+paper. It states what the paper has established, what remains to be done, and what the
+framework implies.}
+
+\medskip
+\textbf{Paragraph 1: What has been established.}
+The Yarncrawler Identifiability Theorem and the Dynamical Disambiguation Theorem together
+characterize the conditions under which multi-modal sensor observations uniquely determine
+a physical world-state. The Sheaf-Variational Equivalence shows that this characterization
+is not merely a technical result about inverse problems: it is the variational realization
+of a categorical structure in which sensor modalities are charts, observations are local
+sections, and closure is the existence of a unique global section. The RSVP field triple
+is the substrate in which these structures are grounded.
+
+\medskip
+\textbf{Paragraph 2: The main finding compressed.}
+A world-state is uniquely recoverable from multi-modal observations if and only if the
+induced map from the quotient configuration space to the product of observation spaces is
+injective on the feasible set, or if the dynamics of the world separate configurations
+that static sensors cannot. In either case, closure corresponds to cohomology
+trivialization, entropy collapse, and Fisher volume collapse---simultaneously and
+equivalently.
+
+\medskip
+\textbf{Paragraph 3: What remains.}
+Three open problems are identified. (a) The extension of the identifiability theorem to
+the stochastic case without the low-noise limit: does a version of the theorem hold when
+$\sigma^2$ is not small? (b) The learning theory of $F(\cdot\,;\hat{\theta})$: what
+sample complexity is needed for the operator class library to ensure trajectory separation
+with high probability? (c) The connection between the Fisher information geometry of the
+feasible set and the computational complexity of the refinement loop: can the convergence
+rate of the refinement loop be bounded in terms of the eigenspectrum of the Fisher metric
+at $[X^*]$?
+
+\medskip
+\textbf{Paragraph 4: The implication.}
+The Yarncrawler system is not a sensing architecture. It is a theory of when the world
+becomes legible---when the observations accumulated by a sensor network, constrained by
+physical law and dynamical history, leave no alternative configuration standing. That
+condition is not an approximation target. It is a threshold: on one side, multiple
+histories remain consistent with the evidence; on the other, only one does. The framework
+identifies that threshold precisely and provides the operator that reaches it.
+}
+
+%% ============================================================
+%% APPENDICES
+%% ============================================================
+
+\appendix
+
+%% ============================================================
+\section{Fréchet Manifold Structure of $\mathcal{X}$}
+\label{app:frechet}
+%% ============================================================
+
+\preliminary{
+\textbf{This appendix establishes the differential-geometric foundations required for the
+main theorems.}
+
+\medskip
+\textbf{A.1 Fréchet Manifolds.}
+Defines Fréchet manifolds as locally convex topological vector spaces with smooth
+transition maps. Notes that $\mathcal{X} = H^1(\Omega) \times H^1(\Omega;\mathbb{R}^3)
+\times L^2(\Omega)$ is in fact a Hilbert space (hence also a Banach space and a Fréchet
+space) with its product inner product. The Fréchet framing is introduced because
+extensions of the framework to more general field configurations (e.g., distributional
+fields, or fields on non-compact domains) may require Fréchet rather than Hilbert
+structure.
+
+\medskip
+\textbf{A.2 The Quotient Topology.}
+Proves that $\Xmod$ is Hausdorff under the assumption that $G$ acts properly and
+isometrically. Gives the metric on $\Xmod$ induced from $\mathcal{X}$. Discusses the
+difference between $\Xmod$ (observational equivalence) and $\mathcal{X}/G$
+(gauge equivalence) and when they coincide.
+
+\medskip
+\textbf{A.3 Tangent Bundle of $\Xmod$.}
+Defines the tangent bundle $T\Xmod$ as the quotient of $T\mathcal{X}$ by the action of
+$TG$. Specifies the admissible tangent cone $\mathcal{T}_{[X]}\Gamma^0$ (Definition 6.7
+of the main text) in terms of this bundle structure. Notes that when $G$ acts freely,
+$T\Xmod \cong T\mathcal{X}/TG$ is a vector bundle, and the tangent cone is a linear
+subspace.
+
+\medskip
+\textbf{A.4 Geodesic Convexity on $\Xmod$.}
+Defines geodesics on $\Xmod$ via the quotient of geodesics on $\mathcal{X}$ (which are
+straight lines in the Hilbert structure). Proves that $\mathcal{A}$ is geodesically convex
+when its preimage in $\mathcal{X}$ is convex---which holds by the definition of
+$\mathcal{A}$ as the zero-sublevel set of a convex functional $\mathcal{R}$. This justifies
+Assumption A4 (Assumption~\ref{ass:admissibility} in the main text).
+}
+
+%% ============================================================
+\section{Full Proof of the Identifiability Theorem}
+\label{app:identifiability}
+%% ============================================================
+
+\subsection{Functional-Analytic Setting}
+
+The proof of Theorem~\ref{thm:identifiability} relies on existence and uniqueness of
+minimizers of the consistency functional on $\Xmod$. We introduce additional assumptions
+for the infinite-dimensional setting.
+
+\begin{assumption}[Banach Realization, restated]
+There exists a Banach space $\mathcal{B}$ and continuous embedding
+$\iota : \mathcal{X} \hookrightarrow \mathcal{B}$ such that $\mathcal{A}$ is closed and
+convex in $\mathcal{B}$, each $\Pi_i$ extends to a bounded linear operator on $\mathcal{B}$,
+and $\mathcal{R}$ extends to a proper, lower semicontinuous functional on $\mathcal{B}$.
+In practice, $\mathcal{B} = \mathcal{X}$ itself.
+\end{assumption}
+
+\begin{assumption}[Geodesic Convexity, restated]
+$\mathcal{A}$ is geodesically convex with respect to the metric induced from $\mathcal{B}$,
+and $\mathcal{R}$ is strictly convex along geodesics in $\mathcal{A}$:
+\[
+\mathcal{R}(\gamma(t)) < (1-t)\mathcal{R}([X]) + t\mathcal{R}([X'])
+\quad \forall [X] \ne [X'] \in \mathcal{A},\; t \in (0,1).
+\]
+\end{assumption}
+
+\begin{assumption}[Coercivity]
+$f([X]) = \sum_i \|\Pi_i(X)-y_i\|^2 + \mathcal{R}(X)$ satisfies
+$\|X_n\|_{\mathcal{B}} \to \infty \Rightarrow f([X_n]) \to \infty$.
+\end{assumption}
+
+\subsection{Existence of a Minimizer}
+
+\begin{proposition}
+Under the standing assumptions, $f$ attains a minimum on $\mathcal{A}$.
+\end{proposition}
+\begin{proof}
+Let $\{[X_n]\}$ be a minimizing sequence; coercivity gives boundedness in $\mathcal{B}$.
+Reflexivity of $\mathcal{B}$ (if Hilbert) yields a weakly convergent subsequence
+$X_{n_k} \rightharpoonup X_*$. Closedness of $\mathcal{A}$ gives $[X_*] \in \mathcal{A}$.
+Weak continuity of $\Pi_i$ (bounded linear) and lower semicontinuity of $\mathcal{R}$
+give $f([X_*]) \le \liminf f([X_{n_k}])$. Hence $[X_*]$ is a minimizer. $\square$
+\end{proof}
+
+\subsection{Uniqueness of the Minimizer}
+
+\begin{proposition}
+Under the standing assumptions, the minimizer is unique.
+\end{proposition}
+\begin{proof}
+Suppose $[X],[X']$ are distinct minimizers. By geodesic convexity, there exists a
+geodesic $\gamma$ in $\mathcal{A}$ connecting them. The projection residual term is
+convex along $\gamma$ (by linearity of $\Pi_i$). The regularizer is strictly convex along
+$\gamma$ by assumption. Hence $f(\gamma(t)) < (1-t)f([X]) + tf([X']) = \inf f$ for
+$t \in (0,1)$, contradicting minimality. $\square$
+\end{proof}
+
+\subsection{Passage to the Quotient}
+
+\begin{proposition}
+If $[X] = [X']$ in $\Xmod$, then $f([X]) = f([X'])$. Conversely, distinct equivalence
+classes yield distinct objective values whenever $\Ftil$ is injective.
+\end{proposition}
+\begin{proof}
+Observational equivalence means $\Pi_i(X) = \Pi_i(X')$ for all $i$, so residual terms
+are equal; $\mathcal{R}$ is defined on equivalence classes, so regularizer terms are
+equal. Injectivity of $\Ftil$ means distinct classes differ in at least one projection,
+so residual terms differ. $\square$
+\end{proof}
+
+\subsection{Full Proof of Theorem~\ref{thm:identifiability}}
+
+\begin{proof}[Full proof]
+\textit{Well-definedness}: by the existence and uniqueness propositions, $\mathcal{C}$ is
+single-valued on $\mathcal{A}$.
+
+\textit{Fixed points = minimizers}: $[X^*] = \mathcal{C}([X^*])$ iff $[X^*]$ minimizes
+$f$ over $\mathcal{A}$.
+
+\textit{Injectivity implies uniqueness}: if $\Ftil$ is injective on $\mathcal{F}$,
+$\mathcal{F}$ contains at most one class. By non-emptiness, $[X^*] \in \mathcal{F}$, so
+$|\mathcal{F}| = 1$. At $[X^*]$, all residuals are within tolerance; strict convexity
+prevents alternative minimizers. Hence $[X^*]$ is the unique fixed point.
+
+\textit{Non-injectivity implies non-uniqueness}: if $\Ftil$ is not injective on
+$\mathcal{F}$, distinct $[X],[X'] \in \mathcal{F}$ have identical projections. Both are
+candidates for the minimizer. If $\mathcal{R}([X]) = \mathcal{R}([X'])$, strict
+convexity fails (contradiction). If $\mathcal{R}([X]) \ne \mathcal{R}([X'])$, the
+larger-regularizer point is not a minimizer---but then it is not in $\mathcal{F}$ as
+defined, contradicting the assumption. Either way we reach a contradiction with
+uniqueness. $\square$
+\end{proof}
+
+%% ============================================================
+\section{Full Proof of the Dynamical Disambiguation Theorem}
+\label{app:disambiguation}
+%% ============================================================
+
+\subsection{Measure-Theoretic Framework}
+
+\begin{assumption}[Polish Structure]
+$\mathcal{A}$ with the metric induced from $\mathcal{B}$ is a Polish space (complete,
+separable metric).
+\end{assumption}
+
+\begin{definition}[Markov Kernel, precise]
+$T_\Delta : \mathcal{A} \to \mathcal{P}(\mathcal{A})$ is a Markov kernel: for each
+$[X]$, $T_\Delta([X],\cdot)$ is a Borel probability measure on $\mathcal{A}$; for each
+Borel $B \subseteq \mathcal{A}$, $[X] \mapsto T_\Delta([X],B)$ is measurable.
+\end{definition}
+
+\subsection{Convergence to the Deterministic Generator}
+
+\begin{assumption}[Generator Convergence, precise]
+For all bounded continuous $\varphi : \mathcal{A} \to \mathbb{R}$:
+\[
+\int \varphi(X')\,T_\Delta([X],dX') = \varphi([X] + \Delta F([X];\theta)) + O(\Delta^{3/2}).
+\]
+\end{assumption}
+
+This is weak convergence $T_\Delta([X],\cdot) \Rightarrow \delta_{[X]+\Delta F([X];\theta)}$
+at rate $\Delta^{3/2}$, corresponding to a diffusion with noise variance $O(\Delta)$.
+
+\subsection{Stability of Trajectory Separation Under Noise}
+
+\begin{definition}[Uniform Separation Margin]
+A pair $[X],[X'] \in \Omega_{\mathrm{obs}}$ is \emph{uniformly trajectory-separated} if
+there exist $\tau > 0$ and $\delta > 0$ such that
+\[
+\left\| \Ftil(\Phi^\tau_F([X])) - \Ftil(\Phi^\tau_F([X'])) \right\| \ge \epsilon + \delta.
+\]
+\end{definition}
+
+\begin{lemma}
+Under generator convergence, uniformly trajectory-separated pairs remain distinguishable
+under stochastic evolution with probability $\ge 1 - C\Delta/\delta^2$.
+\end{lemma}
+\begin{proof}
+By Chebyshev applied to the $O(\Delta)$ noise variance, stochastic trajectories deviate
+from deterministic by $O(\sqrt{\Delta})$ with high probability. For deviation $\delta/2$:
+$\mathbb{P}(\|X_\tau^\Delta - X_\tau\| > \delta/2) \le C\Delta/\delta^2$.
+With margin $\delta$, the two stochastic trajectories remain separated by $\ge \epsilon$
+with probability $\ge 1 - 2C\Delta/\delta^2$. $\square$
+\end{proof}
+
+\subsection{Full Proof of Theorem~\ref{thm:disambiguation}}
+
+\begin{proof}[Full proof]
+Let $[X],[X'] \in \Omega_{\mathrm{obs}} \cap \Gamma^0$ be distinct and uniformly
+trajectory-separated at time $\tau$.
+
+\textit{Step 1}: Both lie on integral curves of $F(\cdot\,;\hat{\theta})$ by definition of
+$\Gamma^0$.
+
+\textit{Step 2}: At time $\tau$, their projections differ by $\ge \epsilon + \delta > \epsilon$.
+
+\textit{Step 3}: By the noise lemma, stochastic evolutions remain separated with high
+probability for small $\Delta$.
+
+\textit{Step 4}: At time $\tau$, the true observation $y(\tau)$ has
+$\|y_i(\tau) - \Pi_i(X^*(\tau))\| \le \epsilon_i$. At most one of the two separated
+candidates lies within $\epsilon_i$ of $y_i(\tau)$.
+
+\textit{Step 5}: The true state $[X^*(\tau)] \in \Omega_{\mathrm{obs}}(y(\tau))$ by
+non-emptiness applied at time $\tau$. Hence the false candidate is eliminated.
+
+\textit{Step 6}: Applying to all pairs eliminates all but $[X^*]$. Hence
+$|\mathcal{F}| = 1$. $\square$
+\end{proof}
+
+%% ============================================================
+\section{Fisher Information Geometry of the Feasible Set}
+\label{app:fisher}
+%% ============================================================
+
+\subsection{Purpose and Position}
+
+Section~\ref{sec:closure} states that closure corresponds to vanishing information volume
+of the feasible set. This appendix provides the formal construction underlying that claim.
+The central point is that the projection family $\{\Pi_i\}$, together with noise models
+$\{\Sigma_i\}$, induces a Riemannian metric on the admissible quotient space. The metric
+measures distinguishability of nearby world-states under the available sensor suite.
+Closure occurs when all remaining admissible directions are eliminated.
+
+\subsection{Observation Likelihood on the Quotient Space}
+
+For each modality $i$, assume noise $\eta_i \sim \mathcal{N}(0, \Sigma_i)$ so the
+conditional density is
+\[
+p_i(y_i \mid X) \propto \exp\!\left(
+-\tfrac{1}{2}\|y_i - \Pi_i(X)\|_{\Sigma_i^{-1}}^2
+\right).
+\]
+Assuming conditional independence across modalities, the full observation log-likelihood is
+\[
+-\ell(X; y) = \tfrac{1}{2}\sum_{i \in \mathcal{I}} \|y_i - \Pi_i(X)\|_{\Sigma_i^{-1}}^2.
+\]
+This is well-defined on $\mathcal{A} = \Xmod$ because each $\Pi_i$ is constant on
+$\sim$-equivalence classes. The negative log-likelihood is precisely the residual sum
+in the consistency operator objective.
+
+\subsection{The Fisher Information Metric}
+
+\begin{definition}[Fisher Information Metric]
+The Fisher information metric $g_F$ on $\mathcal{A}$ is the symmetric bilinear form
+\[
+g_F(X)(u, v) = \sum_{i \in \mathcal{I}}
+\left\langle D\Pi_i(X)u,\; \Sigma_i^{-1} D\Pi_i(X)v \right\rangle_{\mathcal{Y}_i},
+\]
+where $D\Pi_i(X) : T_X\mathcal{A} \to \mathcal{Y}_i$ is the derivative of $\Pi_i$ at $[X]$.
+\end{definition}
+
+This is a positive semidefinite tensor. It is positive definite exactly when the local
+model is identifiable: no nonzero tangent direction leaves the induced observation law
+unchanged to first order. The null space of $g_F$ is therefore the infinitesimal version
+of projection degeneracy:
+\[
+g_F(X)(v,v) = 0 \;\Longleftrightarrow\; D\Pi_i(X)v = 0 \;\forall i.
+\]
+The negative log-likelihood Hessian equals $g_F$ in the Gaussian case, linking the
+Fisher metric directly to the curvature of the consistency operator objective.
+
+\subsection{Metric Monotonicity Under Sensor Addition}
+
+\begin{proposition}[Metric Monotonicity]
+\label{prop:metric_monotone}
+Adding a new sensor modality $j$ yields
+$g_F^{\mathrm{new}}(X) \succeq g_F(X)$ at every $[X] \in \mathcal{A}$.
+\end{proposition}
+\begin{proof}
+$g_F^{\mathrm{new}}(X)(u,u) = g_F(X)(u,u) +
+\|D\Pi_j(X)u\|_{\Sigma_j^{-1}}^2 \ge g_F(X)(u,u)$.
+$\square$
+\end{proof}
+
+This is the infinitesimal counterpart of Proposition~\ref{prop:contraction}: new sensors
+cannot reduce local distinguishability. They fail to improve it only when their derivative
+contribution lies entirely in the directions already constrained.
+
+\subsection{Restriction to the Feasible Set}
+
+\begin{definition}[Restricted Fisher Metric]
+The restricted Fisher metric on $\mathcal{F}$ is
+\[
+g_F^{\mathcal{F}}(X) = g_F(X)\big|_{T_X\mathcal{F} \times T_X\mathcal{F}}.
+\]
+\end{definition}
+
+When $\mathcal{F}$ is locally a smooth embedded submanifold of $\mathcal{A}$ (which holds
+on regular strata under generic regularity assumptions), $g_F^{\mathcal{F}}$ defines a
+Riemannian metric on those strata.
+
+\begin{definition}[Information Volume]
+\[
+\mathrm{Vol}_F(\mathcal{F}) = \int_{\mathcal{F}_{\mathrm{reg}}} d\mathrm{Vol}_{g_F^{\mathcal{F}}}.
+\]
+\end{definition}
+
+Large information volume indicates many locally distinguishable admissible world-states.
+Zero volume indicates closure, subject to the nondegeneracy condition below.
+
+\subsection{Dynamical Lifting of Null Directions}
+
+Define the time-extended projection $\Pi_i^{(\tau)}(X) = \Pi_i(\Phi_F^\tau(X))$ and its
+induced metric
+\[
+g_F^{(\tau)}(X)(u,v)
+= \sum_i \left\langle D(\Pi_i \circ \Phi_F^\tau)(X)u,\;
+\Sigma_i^{-1} D(\Pi_i \circ \Phi_F^\tau)(X)v \right\rangle.
+\]
+By the chain rule, $D(\Pi_i \circ \Phi_F^\tau)(X) = D\Pi_i(\Phi_F^\tau(X)) \circ D\Phi_F^\tau(X)$.
+
+\begin{proposition}[Metric Form of Dynamical Disambiguation]
+\label{prop:dynamical_lifting}
+Suppose $g_F(X)(v,v) = 0$ but $g_F^{(\tau)}(X)(v,v) > 0$ for some $\tau > 0$.
+Then $v$ is a static null direction that is lifted into the observable range by the
+dynamics $\Phi_F^\tau$. This is the differential-geometric form of
+Theorem~\ref{thm:disambiguation}: two configurations indistinguishable at $t = 0$
+become distinguishable at $t = \tau$.
+\end{proposition}
+
+Time is therefore not an auxiliary feature---it is the mechanism by which null directions
+of the static Fisher metric are eliminated.
+
+\subsection{Closure as Vanishing Information Volume}
+
+\begin{theorem}[Closure Implies Vanishing Information Volume]
+\label{thm:closure_volume}
+If $\mathcal{F} = \{[X^*]\}$, then $\mathrm{Vol}_F(\mathcal{F}) = 0$.
+\end{theorem}
+\begin{proof}
+A singleton has zero-dimensional regular part; the Riemannian volume form integrates to
+zero. $\square$
+\end{proof}
+
+\begin{proposition}
+\label{prop:volume_converse}
+$\mathrm{Vol}_F(\mathcal{F}) = 0$ with $g_F^{\mathcal{F}}$ nondegenerate on the regular
+part of $\mathcal{F}$ implies $\dim_{\mathrm{eff}}(\mathcal{F}) = 0$.
+\end{proposition}
+\begin{proof}
+Under nondegeneracy, positive dimension implies positive volume. $\square$
+\end{proof}
+
+\begin{corollary}[Closure Criterion via Information Geometry]
+\label{cor:closure_criterion}
+If $g_F^{\mathcal{F}}$ is nondegenerate on the regular part of $\mathcal{F}$, then
+\[
+\mathcal{F} = \{[X^*]\}
+\;\Longleftrightarrow\;
+\dim_{\mathrm{eff}}(\mathcal{F}) = 0
+\;\Longleftrightarrow\;
+\mathrm{Vol}_F(\mathcal{F}) = 0.
+\]
+\end{corollary}
+
+The nondegeneracy assumption excludes the case where $\mathcal{F}$ has positive dimension
+but the metric degenerates on it (unresolved indistinguishability rather than genuine
+uniqueness). This is the exact condition Section~\ref{sec:closure} relies on.
+
+\subsection{Reconstruction Efficiency}
+
+Let $\mathcal{F}_n$ denote the feasible set after $n$ sensor modalities or constraint
+updates. Define:
+
+\begin{definition}[Reconstruction Efficiency]
+\[
+\mathcal{E}_n = 1 - \frac{\mathrm{Vol}_F(\mathcal{F}_{n+1})}{\mathrm{Vol}_F(\mathcal{F}_n)}
+\in [0,1].
+\]
+\end{definition}
+
+Values near $0$ indicate the new sensor or update contributes little additional
+discrimination. Values near $1$ indicate near-total collapse of residual admissible
+uncertainty. A continuous-time analogue is
+$\mathcal{E}(t) = -\frac{d}{dt}\log \mathrm{Vol}_F(\mathcal{F}(t))$,
+which behaves as an entropy-contraction rate and is often more stable than raw volume
+differences.
+
+The optimal sensor placement criterion follows: the next sensor $j$ should be placed
+where the directional derivative of $\mathcal{E}$ is maximized, which is determined by
+the eigenspectrum of $g_F$ in the remaining unclosed directions.
+
+\subsection{The Effective Metric Near Closure}
+
+Near a nondegenerate minimizer $[X^*]$, the Hessian of the consistency objective
+$J(X) = \sum_i \|y_i - \Pi_i(X)\|_{\Sigma_i^{-1}}^2 + \mathcal{R}(X)$ is
+\[
+\nabla^2 J(X^*) = g_F(X^*) + \nabla^2 \mathcal{R}(X^*).
+\]
+This effective metric combines statistical distinguishability (Fisher geometry) with
+admissibility curvature (regularizer). The convergence rate of the refinement loop of
+Section~\ref{sec:inversion} is governed by the condition number
+$\kappa = \lambda_{\max}/\lambda_{\min}$ of $\nabla^2 J(X^*)$. Directions with small
+Fisher information and small regularizer curvature correspond to slow convergence; dense
+multi-modal sensor networks increase $\lambda_{\min}$ and hence accelerate convergence
+to closure.
+
+\subsection{Entropy Identification}
+
+The identification stated in Section~\ref{sec:equivalence},
+\[
+\log \mathrm{Vol}_F(\mathcal{F})
+\;\longleftrightarrow\;
+\log \dim H^0(\mathcal{U}, \mathcal{S}_\Pi)
+\;\longleftrightarrow\;
+S_{\mathrm{RSVP}}(X^*),
+\]
+is now fully grounded. The first identification holds in the Gaussian regime because
+$\dim H^0$ counts linearly independent global sections, which scales with the information
+volume of the feasible set. The second uses the RSVP entropy field equation: at the fixed
+point $[X^*]$, $S_{\mathrm{RSVP}}$ is the integral of local entropy production over
+$\Omega$, which under the consistency operator objective equals the log-volume of
+remaining uncertainty in the observation-consistent set. The RSVP entropy field is the
+local density of cohomological obstruction; its minimization under $\mathcal{C}$ is the
+physical expression of sheaf repair.
+
+%% ============================================================
+\section{Operator Class Library}
+\label{app:operators}
+%% ============================================================
+
+\preliminary{
+\textbf{This appendix formally specifies the named transition operators in the operator
+class library introduced in Section~\ref{sec:disambiguation}.}
+
+\medskip
+\textbf{E.1 Structure of the Library.}
+The library consists of $K$ named process generators $\{F_k\}_{k=1}^K$, each a learned
+vector field on $\mathcal{A}$ parametrized by $\theta_k \in \Theta_k$. The full dynamics
+are $F([X];\theta) = \sum_k \alpha_k([X]) F_k([X];\theta_k)$ with
+$\alpha_k \ge 0$, $\sum_k \alpha_k = 1$. Each $F_k$ is learned from before/after pairs
+in which process $k$ is dominant, identified by its characteristic sensor signature.
+
+\medskip
+\textbf{E.2 Ecological Process Operators.}
+Specifies the following operators with their characteristic sensor signatures:
+
+\textit{Forest succession} ($F_{\mathrm{succ}}$): slow increase in LiDAR canopy height,
+gradual shift in RGB reflectance from grass-like to canopy-like, decrease in audio
+spectral entropy (bird diversity changes with succession stage). Time scale: years to
+decades.
+
+\textit{Disturbance and recovery} ($F_{\mathrm{dist}}$): rapid decrease in LiDAR height
+and RGB NDVI, followed by slow recovery. Audio signature: absence of characteristic
+species. Time scale: event-driven (days), recovery (years).
+
+\textit{Hydrological dynamics} ($F_{\mathrm{hydro}}$): correlated changes in infrared
+(soil moisture affects surface temperature), LiDAR (inundation changes geometry), and
+audio (water flow sounds). Time scale: seasonal to event-driven.
+
+\textit{Phenological cycling} ($F_{\mathrm{pheno}}$): regular seasonal oscillations in
+RGB (green-up/senescence), infrared (latent heat flux changes), and audio (bird song
+seasonality). Time scale: annual.
+
+\medskip
+\textbf{E.3 Civilizational Process Operators.}
+Specifies:
+
+\textit{Urban expansion} ($F_{\mathrm{urban}}$): progressive increase in LiDAR building
+density and height, change in RGB to impervious surface reflectance, increase in audio
+(traffic, machinery). Time scale: years to decades.
+
+\textit{Infrastructure decay} ($F_{\mathrm{decay}}$): gradual change in LiDAR surface
+roughness, spectral shift in RGB, increase in audio entropy (structural noise). Time
+scale: years.
+
+\textit{Agricultural cycling} ($F_{\mathrm{agri}}$): regular oscillations in RGB
+(crop growth stages), infrared (ET changes), LiDAR (canopy height variation), audio
+(machinery activity). Time scale: seasonal.
+
+\textit{Demographic change} ($F_{\mathrm{demo}}$): correlated changes in audio activity
+levels, RGB night-light proxies, and infrastructure use patterns. Time scale: years.
+
+\medskip
+\textbf{E.4 Learning Protocol.}
+Specifies how each $F_k$ is learned from before/after pairs: (a) identify pairs where
+process $k$ is the dominant change by classifying the observation delta against the
+library; (b) fit $\theta_k$ by minimizing the discrepancy between the predicted
+forward image $\Pi_i(\Phi^\tau_{F_k}([X_b]))$ and the actual after-observation $y_a$
+over training pairs; (c) validate by held-out pairs and by checking that
+$\Theta_{(y_b,y_a,\tau)} \cap \Theta_k$ is non-empty for pairs labeled as process $k$.
+
+\medskip
+\textbf{E.5 Library Extensibility.}
+The library is open: new process types $F_{K+1}$ can be added by collecting before/after
+pairs exhibiting the new process, fitting the generator, and appending to the library.
+The identifiability and disambiguation theorems are not affected by library extension:
+they hold for any $F$ with Lipschitz generator, regardless of how many process components
+it contains. The effect of library extension is to reduce $\Gamma^0_{\mathrm{indist}}$
+(the set of configurations not separated by trajectory learning), which by
+Corollary 6.4(iii) increases the rate of closure.
+}
+
+%% ============================================================
+\section{Implementation File Structure}
+\label{app:implementation}
+%% ============================================================
+
+This appendix documents the reference implementation of the Yarncrawler consistency
+operator as a stratified filesystem. The architecture maps directly onto the theoretical
+structure: state definition corresponds to the configuration space $\mathcal{X}$,
+morphism algebra corresponds to the operator class library, controller evolution
+corresponds to iterative application of $\mathcal{C}$, and quotient construction
+corresponds to the identification of observationally equivalent world-states.
+
+\subsection{Structural Overview}
+
+The implementation is organized into seven layers, each corresponding to a structural
+role in the framework.
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Layer} & \textbf{Theoretical Role} \\
+\midrule
+State layer & Configuration space $\mathcal{X}$, field types, domains \\
+Morphism layer & Operator class library $\{F_k\}$, composition algebra \\
+Transfer layer & Domain transfer, functoriality checking \\
+Controller layer & Iterative application of $\mathcal{C}$, decision policy \\
+Transformation layer & Natural transformations between controllers \\
+Fixed-point layer & Closure detection, stability tracking \\
+Quotient layer & Equivalence classes of world-states \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Core Infrastructure}
+
+Shared utilities used by all layers:
+\begin{verbatim}
+common/
+  common_io.py          # I/O primitives, serialization, logging
+\end{verbatim}
+
+\subsection{State Layer}
+
+Defines the plenum field configuration and admissible types.
+\begin{verbatim}
+state/
+  initial_state.json    # Initial field configuration (Phi, v, S)
+  topology.json         # Domain geometry, boundary conditions
+  typing_rules.yaml     # Type constraints on field components
+
+  domain_A.json         # Source domain specification
+  domain_B.json         # Target domain specification
+
+  transfer_A_to_B.json  # Cross-domain transfer morphism
+\end{verbatim}
+
+\subsection{Log Layer}
+
+Accumulates the trajectory history that the disambiguation theorem requires.
+\begin{verbatim}
+logs/
+  history.jsonl           # Full state history (before/after pairs)
+  controller_trace.jsonl  # Controller decision trace
+  class_transforms.jsonl  # Equivalence class transitions
+\end{verbatim}
+
+\subsection{Morphism Layer}
+
+Implements the operator class library: storage, generation, composition, transfer.
+\begin{verbatim}
+morphisms/
+  registry/
+    index.json            # Global operator index
+    entries/
+      morph_*.json        # Individual operator specifications
+
+  transferred/
+    *.json                # Operators transferred across domains
+
+python/
+  morphism_apply.py       # Apply operator to field configuration
+  compose_morphisms.py    # Categorical composition of operators
+  discover_compositions.py # Find composable operator pairs
+  abstract_morphism.py    # Abstract operator from trajectory data
+
+  admit_morphism.py       # Admit new operator to registry
+  update_registry_stats.py # Track operator usage statistics
+  prune_registry.py       # Remove underused operators
+  query_registry.py       # Retrieve operators by type/signature
+
+  transfer_morphism.py    # Transfer operator across domains
+  transfer_registry_slice.py # Transfer operator subset
+  check_functoriality.py  # Verify naturality conditions
+
+  check_composable.py     # Type-check operator composition
+  type_path_resolver.py   # Resolve type paths in composition
+  propose_type_bridge.py  # Propose bridging morphisms
+
+  score_rollout.py        # Score operator on trajectory rollout
+\end{verbatim}
+
+\subsection{Controller Layer}
+
+Implements the iterative consistency operator $\mathcal{C}$ and decision policies.
+\begin{verbatim}
+controllers/
+  registry/
+    beam.json       # Beam search controller
+    dp.json         # Dynamic programming controller
+    learned.json    # Learned neural controller
+    spatial.json    # Spatially-indexed controller
+    repair.json     # Sheaf repair controller
+
+  state/
+    controller_state.json  # Current controller parameters
+
+  transformations/
+    beam_to_learned.json   # Natural transformation between controllers
+
+  quotient/
+    classes.json            # Equivalence classes of controllers
+    class_0001.json         # Class representative and members
+    class_0002.json
+    representatives.json    # Selected representatives per class
+
+python/
+  apply_controller_transform.py   # Apply natural transformation
+  learn_controller_transform.py   # Learn transformation from data
+
+  iterate_controller.py     # One step of consistency operator
+  controller_distance.py    # Distance between controller states
+  check_fixed_point.py      # Test for closure (fixed point)
+  update_stability.py       # Track convergence to closure
+
+  controller_equivalence.py # Identify equivalent controllers
+  build_controller_classes.py # Construct equivalence classes
+  select_representatives.py  # Choose class representatives
+
+  build_controller_quotient.py  # Construct quotient structure
+  split_classes.py              # Refine equivalence classes
+  select_controller_class.py    # Choose active class
+  log_class_transform.py        # Record class transitions
+  canonicalize_controller.py    # Map to canonical representative
+
+  meta_controller.py        # Orchestrate controller selection
+\end{verbatim}
+
+\subsection{Engine Layer}
+
+Executable entry points that orchestrate the full refinement loop.
+\begin{verbatim}
+engine/
+  apply_morphism.sh            # Apply operator to current state
+  run_transfer.sh              # Execute domain transfer
+  run_controller_fixed_point.sh # Run until closure detected
+  run_class_controller.sh      # Run with class-level controller
+
+run.sh                         # Top-level execution entry point
+\end{verbatim}
+
+\subsection{Correspondence to the Theoretical Framework}
+
+The implementation instantiates the theoretical structure as follows. The
+\texttt{state/} layer defines $\mathcal{X}$ and $\mathcal{A}$. The
+\texttt{morphisms/} layer is the operator class library $\{F_k\}$ of
+Appendix~\ref{app:operators}. The \texttt{logs/history.jsonl} file accumulates the
+before/after trajectory pairs used to learn $F(\cdot;\hat{\theta})$. The
+\texttt{iterate\_controller.py} script implements one step of $\mathcal{C}$.
+The \texttt{check\_fixed\_point.py} script implements the closure detection criterion
+of Section~\ref{sec:closure}: stability of $[X^*]$ under perturbation of $\epsilon_i$.
+The \texttt{controllers/quotient/} directory implements the identification of
+observationally equivalent world-states, corresponding to the passage to $\Xmod$.
+The \texttt{check\_functoriality.py} script verifies that domain transfers respect
+the naturality conditions of the functor $\Psi$ established in
+Theorem~\ref{thm:equivalence}.
+
+\newpage
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+
+\bibitem{friston2010}
+Friston, K. (2010).
+The free-energy principle: a unified brain theory?
+\textit{Nature Reviews Neuroscience}, 11(2), 127--138.
+
+\bibitem{friston2019}
+Friston, K., FitzGerald, T., Rigoli, F., Schwartenbeck, P., \& Pezzulo, G. (2019).
+Active inference: a process theory.
+\textit{Neural Computation}, 31(1), 1--49.
+
+\bibitem{hordijk2019}
+Hordijk, W., \& Steel, M. (2019).
+Autocatalytic networks: an intimate relation between network topology and dynamics.
+\textit{Bulletin of Mathematical Biology}, 81(5), 1357--1374.
+
+\bibitem{maturana1980}
+Maturana, H. R., \& Varela, F. J. (1980).
+\textit{Autopoiesis and Cognition: The Realization of the Living}.
+D.~Reidel.
+
+\bibitem{rosen1985}
+Rosen, R. (1985).
+\textit{Anticipatory Systems}.
+Pergamon Press.
+
+\bibitem{abramsky2011}
+Abramsky, S., \& Brandenburger, A. (2011).
+The sheaf-theoretic structure of non-locality and contextuality.
+\textit{New Journal of Physics}, 13, 113036.
+
+\bibitem{spivak2014}
+Spivak, D. I. (2014).
+\textit{Category Theory for the Sciences}.
+MIT Press.
+
+\bibitem{lewis2020}
+Lewis, P., Perez, E., et al. (2020).
+Retrieval-augmented generation for knowledge-intensive NLP tasks.
+\textit{Advances in Neural Information Processing Systems}, 33.
+
+\bibitem{mildenhall2021}
+Mildenhall, B., Srinivasan, P. P., Tancik, M., Barron, J. T., Ramamoorthi, R.,
+\& Ng, R. (2021).
+NeRF: representing scenes as neural radiance fields for view synthesis.
+\textit{Communications of the ACM}, 65(1), 99--106.
+
+\bibitem{freidlin1984}
+Freidlin, M. I., \& Wentzell, A. D. (1984).
+\textit{Random Perturbations of Dynamical Systems}.
+Springer.
+
+\end{thebibliography}
+
+\end{document}
