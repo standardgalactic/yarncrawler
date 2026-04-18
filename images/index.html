@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Retrofuturism — Yarncrawler Gallery</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
     body {
       background: radial-gradient(circle at top, #0a0a0a 0%, #000 100%);
@@ -12,59 +14,95 @@
       font-family: 'JetBrains Mono', monospace;
       letter-spacing: 0.02em;
     }
+
     img {
       transition: transform 0.3s ease, filter 0.3s ease;
     }
+
     img:hover {
       transform: scale(1.05);
       filter: brightness(1.2) saturate(1.2);
     }
+
     .caption {
       background: rgba(10, 20, 10, 0.75);
       backdrop-filter: blur(6px);
     }
   </style>
 </head>
+
 <body class="min-h-screen flex flex-col items-center p-6">
+
   <header class="mb-8 text-center">
     <h1 class="text-4xl font-bold text-green-400 mb-2">Retrofuturism</h1>
-    <p class="text-sm text-green-300 opacity-75">Yarncrawler Vision — Generated via Stable Diffusion</p>
+    <p class="text-sm text-green-300 opacity-75">
+      Yarncrawler Vision — Generated via Stable Diffusion
+    </p>
   </header>
 
   <main class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl w-full">
-    <!-- Image cards -->
-    <!-- Each block corresponds to an image in your folder -->
-    
-    <div class="relative group">
-      <img src="4dbc8abd-c65e-4b9f-9b4e-96817e53b18f(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg w-full h-auto">
-      <div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">
-        Retrofuturism
-      </div>
-    </div>
 
-    <div class="relative group"><img src="6ade70ab-bda2-4321-80cc-f2b7716a98f8(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="70b7c2a7-60c3-4707-8ebb-b9f555eec0a6(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="7a55df58-b748-4c86-83cb-e3987ba99c7e(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="7a55df58-b748-4c86-83cb-e3987ba99c7e(2).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="80ca86b5-d2d7-4efb-82b7-b1e811bcd205(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="82f8c2c7-cba1-41e6-9dd9-a3aa8d41c964(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="9b2206e3-5e0b-4f18-93ec-1021fd0d7d52(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="a7b63e36-7b4e-42cb-81b7-5a301d97abf4(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="ba22b93f-a96e-4ee4-9040-668dc01fee4f(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="f6d79bd8-e733-48c1-a945-5a84c5c5a0a5(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="image (89).webp" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="image (90).webp" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="image (91).webp" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="image (92).webp" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="image (93).webp" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="image (94).webp" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="image (95).webp" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="image (96).webp" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
-    <div class="relative group"><img src="image (97)(1).jpg" alt="Retrofuturism" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition">Retrofuturism</div></div>
+    <!-- Never Dig Straight Down!! -->
+    <div class="relative group"><img src="mech-01.jpg" class="rounded-lg shadow-lg w-full h-auto"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-02.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-03.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-04.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-05.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-06.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-07.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-08.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-09.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-10.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-11.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+
+    <div class="relative group"><img src="mech-12.webp" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-13.webp" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-14.webp" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-15.webp" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-16.webp" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-17.webp" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-18.webp" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-19.webp" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+    <div class="relative group"><img src="mech-20.jpg" class="rounded-lg shadow-lg"><div class="caption absolute bottom-0 left-0 right-0 text-center py-2 opacity-0 group-hover:opacity-100 transition"></div></div>
+
   </main>
 
   <footer class="mt-10 text-green-500 opacity-70 text-xs">
     <p>© 2025 Yarncrawler / Flyxion — Retrofuturist Studies</p>
   </footer>
+
+  <script>
+    const titles = [
+      "Orbital Ruins",
+      "Habitat Online",
+      "Signal Locked",
+      "Engine Idle",
+      "Dual Horizon",
+      "Corridor Empty",
+      "Archive Open",
+      "Array Silent",
+      "Garden Active",
+      "Signal Blooming",
+      "City Vectorized",
+      "Terminal Cold",
+      "Echo Detected",
+      "Solar Residue",
+      "Cathedral Wired",
+      "Data Fragment",
+      "Grid Unstable",
+      "Conveyor Sky",
+      "Glow Persistent",
+      "Interface Last"
+    ];
+
+    document.querySelectorAll('.caption').forEach((el, i) => {
+      if (titles[i]) el.textContent = titles[i];
+    });
+
+    document.querySelectorAll('img').forEach((img, i) => {
+      if (titles[i]) img.alt = titles[i];
+    });
+  </script>
+
 </body>
 </html>

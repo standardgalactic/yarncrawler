@@ -2,6 +2,8 @@
 
 [Irreversibility and the Ontology of Mind](https://standardgalactic.github.io/yarncrawler/irreversibility_ontology_mind.pdf) 
 
+* [Irreversible Minds](https://standardgalactic.github.io/yarncrawler/) — *Audio Overview*
+
 ## Constraint Before Completion
 
 [Audio Overview](https://standardgalactic.github.io/yarncrawler/working/)

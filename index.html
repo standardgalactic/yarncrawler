@@ -3,353 +3,479 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yarncrawler Demos</title>
+<title>Pipe Field</title>
 <style>
-  body {
-    margin: 0; padding: 0;
-    background: black; color: #0f0;
-    font-family: monospace;
-    text-align: center;
-  }
-  canvas { width: 100%; height: 60vh; background: #111; display:block; margin:auto; }
-  button {
-    font-size: 1.2em;
-    padding: 12px 20px;
-    margin: 10px;
-    background: #0f0;
-    border: none;
-    border-radius: 6px;
-    color: black;
-  }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+canvas { position: fixed; top: 0; left: 0; display: block; }
+
+#screen {
+  touch-action: none;
+}
+
+/* ── language selection overlay ── */
+#overlay {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.88);
+  z-index: 20;
+  transition: opacity 0.8s;
+}
+#overlay.gone { opacity: 0; pointer-events: none; }
+
+#overlay-title {
+  color: rgba(0,255,120,0.30);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  margin-bottom: 32px;
+  text-align: center;
+  line-height: 2.2;
+}
+
+.lang-btn {
+  display: block;
+  width: 220px;
+  border: 1px solid rgba(0,255,120,0.28);
+  color: rgba(0,255,120,0.45);
+  background: none;
+  padding: 13px 0;
+  margin: 7px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.25s, color 0.25s;
+}
+.lang-btn:hover {
+  border-color: rgba(0,255,120,0.75);
+  color: rgba(0,255,120,0.90);
+}
+
+/* ── subtitles ── */
+#subs {
+  position: fixed;
+  bottom: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(0,255,120,0.88);
+  font-size: 14px;
+  line-height: 1.65;
+  text-align: center;
+  max-width: 68%;
+  white-space: pre-line;
+  pointer-events: none;
+  z-index: 5;
+  text-shadow: 0 0 8px rgba(0,255,120,0.22);
+  min-height: 1.65em;
+}
+
+/* ── bottom bar ── */
+#bottom {
+  position: fixed;
+  bottom: 18px;
+  left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  z-index: 5;
+}
+
+#essay-link {
+  color: rgba(0,255,120,0.26);
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+#essay-link:hover { color: rgba(0,255,120,0.62); }
+
+#sub-toggle {
+  color: rgba(0,255,120,0.26);
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  cursor: pointer;
+  transition: color 0.2s;
+  user-select: none;
+}
+#sub-toggle:hover { color: rgba(0,255,120,0.62); }
 </style>
 </head>
 <body>
-<h1>Yarncrawler Demos</h1>
-<canvas id="sim"></canvas>
-<button id="toggle">Switch Simulation</button>
+
+<canvas id="screen"></canvas>
+
+<!-- language selection overlay -->
+<div id="overlay">
+  <div id="overlay-title">
+    THE PHYSICS OF IRREVERSIBLE MINDS<br>
+    <span style="opacity:0.45;font-size:9px;letter-spacing:0.16em">
+      SELECT LANGUAGE · FIELD RUNS AUTONOMOUSLY WITHOUT AUDIO
+    </span>
+  </div>
+  <button class="lang-btn" id="btn-en">ENGLISH</button>
+  <button class="lang-btn" id="btn-es">ESPAÑOL</button>
+</div>
+
+<!-- subtitles -->
+<div id="subs"></div>
+
+<!-- bottom bar -->
+<div id="bottom">
+  <a id="essay-link"
+     href="irreversibility_ontology_mind.pdf"
+     target="_blank">
+    IRREVERSIBILITY AND THE ONTOLOGY OF MIND ↗
+  </a>
+  <span id="sub-toggle">SUBS ON</span>
+</div>
+
+<audio id="audio" preload="none" playsinline webkit-playsinline>
+  <track id="subtrack" kind="subtitles" default>
+</audio>
 
 <script>
-const canvas = document.getElementById("sim");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight * 0.6;
+// ═══════════════════════════════════════════════════════════════
+// CANVAS SETUP
+// ═══════════════════════════════════════════════════════════════
 
-let mode = 0; // 0 = berm growth, 1 = RSVP scalar field
-let t = 0;
+const screen = document.getElementById('screen')
+const ctx    = screen.getContext('2d')
 
-function drawBerms() {
-  ctx.fillStyle = "#111";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  for (let i=0;i<50;i++) {
-    const x = (Math.sin(t*0.01+i)*0.5+0.5)*canvas.width;
-    const y = (Math.cos(t*0.01+i)*0.5+0.5)*canvas.height;
-    ctx.beginPath();
-    ctx.arc(x,y,10+5*Math.sin(t*0.05+i),0,Math.PI*2);
-    ctx.fillStyle = "#0f0";
-    ctx.fill();
+let W = screen.width  = innerWidth
+let H = screen.height = innerHeight
+
+const mem = document.createElement('canvas')
+const tmp = document.createElement('canvas')
+mem.width = tmp.width = W
+mem.height = tmp.height = H
+const mctx = mem.getContext('2d')
+const tctx = tmp.getContext('2d')
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIO SIGNALS
+// ═══════════════════════════════════════════════════════════════
+
+let analyser = null
+let timeBuf  = null
+let freqBuf  = null
+
+// start non-zero — field is alive before any audio
+let amp  = 0.28
+let mid  = 0.18
+let bass = 0.20
+let fakeT = 0
+
+function initAnalyser() {
+  if (analyser) return
+  const actx = new (window.AudioContext || window.webkitAudioContext)()
+  window._pipeAudioCtx = actx
+  analyser = actx.createAnalyser()
+  analyser.fftSize = 2048
+  analyser.smoothingTimeConstant = 0.78
+  timeBuf = new Uint8Array(analyser.fftSize)
+  freqBuf = new Uint8Array(analyser.frequencyBinCount)
+  const src = actx.createMediaElementSource(document.getElementById('audio'))
+  src.connect(analyser)
+  analyser.connect(actx.destination)
+}
+
+function updateAudio() {
+  if (!analyser) {
+    fakeT += 0.016
+    const a = 0.28 + Math.sin(fakeT)        * 0.22
+    const m = 0.20 + Math.sin(fakeT * 1.73) * 0.18
+    const b = 0.22 + Math.sin(fakeT * 0.61) * 0.20
+    amp  += (a - amp)  * 0.04
+    mid  += (m - mid)  * 0.04
+    bass += (b - bass) * 0.04
+    return
+  }
+
+  analyser.getByteTimeDomainData(timeBuf)
+  let energy = 0
+  for (let i = 0; i < timeBuf.length; i++) {
+    const d = timeBuf[i] - 128
+    energy += d * d
+  }
+  const rawAmp = Math.min(energy / (timeBuf.length * 2200), 1)
+  amp += (rawAmp - amp) * 0.09
+
+  analyser.getByteFrequencyData(freqBuf)
+  const n = freqBuf.length
+
+  let bSum = 0
+  const bEnd = Math.floor(n * 0.10)
+  for (let i = 0; i < bEnd; i++) bSum += freqBuf[i]
+  bass += (Math.min(bSum / (bEnd * 255), 1) - bass) * 0.07
+
+  let mSum = 0
+  const mEnd = Math.floor(n * 0.50)
+  for (let i = bEnd; i < mEnd; i++) mSum += freqBuf[i]
+  mid += (Math.min(mSum / ((mEnd - bEnd) * 255), 1) - mid) * 0.09
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SUBTITLE SYSTEM — native WebVTT / textTracks
+// ═══════════════════════════════════════════════════════════════
+
+const subsEl    = document.getElementById('subs')
+const subToggle = document.getElementById('sub-toggle')
+const audioEl   = document.getElementById('audio')
+const subTrackEl = document.getElementById('subtrack')
+
+let subsOn = true
+
+subToggle.addEventListener('click', () => {
+  subsOn = !subsOn
+  subToggle.textContent = subsOn ? 'SUBS ON' : 'SUBS OFF'
+  if (!subsOn) subsEl.textContent = ''
+})
+
+function bindSubtitleTrack() {
+  const tt = subTrackEl.track || audioEl.textTracks[0]
+  if (!tt) return
+
+  tt.mode = 'hidden'
+  tt.oncuechange = () => {
+    if (!subsOn) {
+      subsEl.textContent = ''
+      return
+    }
+    const cue = tt.activeCues && tt.activeCues[0]
+    subsEl.textContent = cue ? cue.text : ''
   }
 }
 
-function drawRSVP() {
-  const img = ctx.createImageData(canvas.width, canvas.height);
-  for (let i=0;i<img.data.length;i+=4){
-    const idx = i/4;
-    const x = idx % canvas.width;
-    const y = Math.floor(idx/canvas.width);
-    const v = Math.floor(128+127*Math.sin(0.01*x+0.02*y+t*0.02));
-    img.data[i]=0; img.data[i+1]=v; img.data[i+2]=0; img.data[i+3]=255;
+audioEl.addEventListener('loadedmetadata', bindSubtitleTrack)
+audioEl.addEventListener('loadeddata', bindSubtitleTrack)
+
+// ═══════════════════════════════════════════════════════════════
+// PLAYBACK  —  sequential: chosen language first, then the other
+// ═══════════════════════════════════════════════════════════════
+
+const TRACKS = {
+  en: {
+    audio: 'The_Physics_of_Irreversible_Minds.mp3',
+    vtt:   'The_Physics_of_Irreversible_Minds.vtt'
+  },
+  es: {
+    audio: 'La_conciencia_requiere_una_p\u00e9rdida_irreversible.mp3',
+    vtt:   'La_conciencia_requiere_una_p\u00e9rdida_irreversible.vtt'
   }
-  ctx.putImageData(img,0,0);
 }
 
-function loop() {
-  if (mode===0) drawBerms(); else drawRSVP();
-  t++;
-  requestAnimationFrame(loop);
-}
-loop();
+let queue = []
 
-document.getElementById("toggle").onclick = () => {
-  mode = 1-mode;
-};
+function playTrack(key) {
+  const t = TRACKS[key]
+
+  subsEl.textContent = ''
+  subTrackEl.src = t.vtt
+  audioEl.src = t.audio
+  audioEl.load()
+
+  const resume = (window._pipeAudioCtx && window._pipeAudioCtx.state === 'suspended')
+    ? window._pipeAudioCtx.resume()
+    : Promise.resolve()
+
+  resume
+    .then(() => audioEl.play())
+    .then(() => bindSubtitleTrack())
+    .catch(err => {
+      console.error('Audio play failed:', err)
+    })
+}
+
+function playNext() {
+  if (!queue.length) return
+  playTrack(queue.shift())
+}
+
+audioEl.addEventListener('ended', playNext)
+
+function startLanguage(first) {
+  document.getElementById('overlay').classList.add('gone')
+  initAnalyser()
+  queue = [first, first === 'en' ? 'es' : 'en']
+  playNext()
+}
+
+document.getElementById('btn-en').addEventListener('click', () => startLanguage('en'))
+document.getElementById('btn-es').addEventListener('click', () => startLanguage('es'))
+
+// auto-dismiss after 5 s → autonomous mode
+setTimeout(() => {
+  document.getElementById('overlay').classList.add('gone')
+}, 5000)
+
+// ═══════════════════════════════════════════════════════════════
+// PIPE FIELD
+// ═══════════════════════════════════════════════════════════════
+
+const DIRS = [[1,0],[0,1],[-1,0],[0,-1]]
+const STEP = 5
+const MAX_WALKERS = 40
+
+class Walker {
+  constructor(x, y, dir) {
+    this.x    = x   ?? Math.random() * W
+    this.y    = y   ?? Math.random() * H
+    this.dir  = dir ?? Math.floor(Math.random() * 4)
+    this.life = 500 + Math.random() * 600
+    this.age  = 0
+  }
+
+  step(walkers) {
+    const [dx, dy] = DIRS[this.dir]
+    const nx = this.x + dx * STEP
+    const ny = this.y + dy * STEP
+
+    const alpha = 0.60 + amp * 0.50
+
+    const back = 0.8
+    const sx = this.x - dx * STEP * back
+    const sy = this.y - dy * STEP * back
+
+    mctx.beginPath()
+    mctx.moveTo(sx, sy)
+    mctx.lineTo(nx, ny)
+    mctx.strokeStyle = `rgba(0,255,120,${alpha.toFixed(3)})`
+    mctx.lineWidth   = 2.2 + bass * 2.2
+    mctx.lineCap     = 'butt'
+    mctx.stroke()
+
+    if (this.age % (22 + this.dir * 2) === 0) {
+      mctx.beginPath()
+      mctx.arc(nx, ny, 2.5 + bass * 2, 0, Math.PI * 2)
+      mctx.fillStyle = `rgba(0,255,120,${(alpha * 0.70).toFixed(3)})`
+      mctx.fill()
+    }
+
+    if (Math.random() < 0.008 + mid * 0.10) {
+      this.dir = (this.dir + (Math.random() < 0.5 ? 1 : 3)) % 4
+    }
+
+    if (walkers.length < MAX_WALKERS && Math.random() < 0.004 + amp * 0.06) {
+      walkers.push(new Walker(nx, ny, this.dir))
+    }
+
+    this.x  = nx
+    this.y  = ny
+    this.age++
+    this.life--
+
+    if (this.x < -4)   this.x = W + 4
+    if (this.x > W+4)  this.x = -4
+    if (this.y < -4)   this.y = H + 4
+    if (this.y > H+4)  this.y = -4
+
+    return this.life > 0
+  }
+}
+
+let walkers = []
+for (let i = 0; i < 10; i++) walkers.push(new Walker())
+
+function advect() {
+  const push  = 0.0016 + bass * 0.002
+  const scale = 1 - push
+  const offX  = (W * (1 - scale)) / 2
+  const offY  = (H * (1 - scale)) / 2
+
+  tctx.clearRect(0, 0, W, H)
+  tctx.globalAlpha = 0.992
+  tctx.drawImage(mem, offX, offY, W * scale, H * scale)
+  tctx.globalAlpha = 1
+
+  tctx.fillStyle = 'rgba(0,0,0,0.0055)'
+  tctx.fillRect(0, 0, W, H)
+
+  mctx.clearRect(0, 0, W, H)
+  mctx.drawImage(tmp, 0, 0)
+}
+
+function tick() {
+  updateAudio()
+  advect()
+
+  mctx.globalCompositeOperation = 'lighter'
+  walkers = walkers.filter(w => w.step(walkers))
+  mctx.globalCompositeOperation = 'source-over'
+
+  if (heat.radius > 0.5) {
+    const sc   = heat._scratch
+    const sctx = heat._sctx
+
+    sctx.clearRect(0, 0, W, H)
+
+    const grad = sctx.createRadialGradient(
+      heat.x, heat.y, 0,
+      heat.x, heat.y, heat.radius
+    )
+    grad.addColorStop(0,   'rgba(255,130,0,0.55)')
+    grad.addColorStop(0.6, 'rgba(255,160,20,0.18)')
+    grad.addColorStop(1,   'rgba(255,160,20,0)')
+
+    sctx.fillStyle = grad
+    sctx.fillRect(0, 0, W, H)
+
+    mctx.save()
+    mctx.globalCompositeOperation = 'source-atop'
+    mctx.drawImage(sc, 0, 0)
+    mctx.restore()
+  }
+
+  if (heat.active) {
+    heat.radius += (260 - heat.radius) * 0.018
+  } else {
+    heat.radius *= 0.96
+  }
+
+  if (walkers.length < 12) walkers.push(new Walker())
+
+  ctx.clearRect(0, 0, W, H)
+  ctx.drawImage(mem, 0, 0)
+
+  requestAnimationFrame(tick)
+}
+
+const heat = { x: 0, y: 0, active: false, radius: 0 }
+
+heat._scratch = document.createElement('canvas')
+heat._scratch.width  = W
+heat._scratch.height = H
+heat._sctx = heat._scratch.getContext('2d')
+
+screen.addEventListener('pointerdown', e => {
+  if (document.getElementById('overlay').classList.contains('gone')) {
+    heat.x = e.clientX
+    heat.y = e.clientY
+    heat.active = true
+  }
+})
+
+screen.addEventListener('pointermove', e => {
+  if (heat.active) {
+    heat.x = e.clientX
+    heat.y = e.clientY
+  }
+})
+
+screen.addEventListener('pointerup',     () => { heat.active = false })
+screen.addEventListener('pointercancel', () => { heat.active = false })
+
+tick()
+
+window.addEventListener('resize', () => {
+  W = screen.width  = mem.width  = tmp.width  = innerWidth
+  H = screen.height = mem.height = tmp.height = innerHeight
+  heat._scratch.width  = W
+  heat._scratch.height = H
+  mctx.clearRect(0, 0, W, H)
+})
 </script>
 </body>
-</html>  const ctx = canvas.getContext('2d');
-  function drawGrid(grid, mode){
-    const {w,h,B,C,N,S} = grid;
-    const img = ctx.createImageData(w,h);
-    for(let i=0;i<w*h;i++){
-      let r=0,g=0,b=0;
-      if(mode==='berm'){
-        // Map: B -> green, C -> orange, N -> blue, S -> white overlay
-        const bB = Math.min(1,B[i]);
-        const bC = Math.min(1,C[i]);
-        const bN = Math.min(1,N[i]);
-        r = 200*bC + 40*bB;
-        g = 220*bB + 60*bC;
-        b = 220*bN + 30*bB;
-        const s = Math.min(1,S[i]);
-        r = lerp(r,255,s*0.2); g = lerp(g,255,s*0.2); b = lerp(b,255,s*0.2);
-      }else{
-        // RSVP: visualize Φ in magma palette
-        const v = Math.min(1, grid.B[i]);
-        // simple palette
-        const t=v; r= 255*Math.pow(t,0.6); g= 200*Math.pow(t,0.9); b= 80*t;
-      }
-      const ii=i*4; img.data[ii]=r; img.data[ii+1]=g; img.data[ii+2]=b; img.data[ii+3]=255;
-    }
-    // Scale image to canvas
-    const off = new OffscreenCanvas(grid.w, grid.h);
-    const octx = off.getContext('2d');
-    octx.putImageData(img,0,0);
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.drawImage(off, 0,0, canvas.width, canvas.height);
-  }
-
-  // Painting helper
-  function attachPainter(grid, state){
-    let painting=false;
-    function xy(evt){
-      const rect=canvas.getBoundingClientRect();
-      const cx=evt.clientX-rect.left, cy=evt.clientY-rect.top;
-      const x = Math.floor(cx/canvas.width*grid.w);
-      const y = Math.floor(cy/canvas.height*grid.h);
-      return {x:clamp(x,0,grid.w-1), y:clamp(y,0,grid.h-1)};
-    }
-    function dab(x0,y0,rad,field,val,op){
-      for(let y=y0-rad;y<=y0+rad;y++){
-        if(y<0||y>=grid.h) continue;
-        for(let x=x0-rad;x<=x0+rad;x++){
-          if(x<0||x>=grid.w) continue;
-          const d=(x-x0)**2+(y-y0)**2; if(d>rad*rad) continue;
-          const i=grid.index(x,y);
-          let v = field[i];
-          if(op==='add') v += val;
-          else if(op==='set') v = val;
-          field[i]=clamp(v,0,1e3);
-        }
-      }
-    }
-    canvas.addEventListener('pointerdown',e=>{painting=true; const {x,y}=xy(e); 
-      if(state.paintTarget==='S') dab(x,y,state.brush,grid.S, state.paintValue, 'add');
-      if(state.paintTarget==='Phi') dab(x,y,state.brush,grid.B, state.paintValue, 'add');
-    });
-    canvas.addEventListener('pointermove',e=>{ if(!painting) return; const {x,y}=xy(e);
-      if(state.paintTarget==='S') dab(x,y,state.brush,grid.S, state.paintValue, 'add');
-      if(state.paintTarget==='Phi') dab(x,y,state.brush,grid.B, state.paintValue, 'add');
-    });
-    window.addEventListener('pointerup',()=>painting=false);
-  }
-
-  // -------------------------------
-  // Simulation A: Stigmergic Berms
-  // -------------------------------
-  function makeBermSim(){
-    const W=180, H=120; const grid = new Grid(W,H);
-    // Initialize affinity S as a band across the center (imitate boundary)
-    grid.forEach((x,y,i)=>{
-      const d=Math.abs(y-H/2);
-      const tau=10;
-      const base=Math.exp(-d/tau);
-      grid.S[i]=base*0.7;
-      // gentle resource mask R -> modulate S horizontally
-      const rx = 0.4+0.6*Math.exp(-((x-W*0.75)**2)/(2*(W*0.2)**2));
-      grid.S[i]*=rx;
-    });
-    // Facilitation constants
-    const params={
-      dt:0.2, DB:0.8, DC:0.2, DN:0.25,
-      alphaB:0.09, alphaC:0.06, alphaN:0.05,
-      betaB:0.6, deltaB:0.02, deltaC:0.006, deltaN:0.008,
-      C0:0.5, N0:0.5, K:1.2,
-      adv:0.0, // simple advection strength
-      running:true,
-      paintTarget:'S', paintValue:0.3, brush:6
-    };
-
-    // Simple slope for advection (optional)
-    grid.forEach((x,y,i)=>{
-      const ux=0, uy=0.0; grid.u[i*2]=ux; grid.u[i*2+1]=uy;
-    });
-
-    function lap(A,i,x,y){
-      const xm=x>0?i-1:i, xp=x<grid.w-1?i+1:i;
-      const ym=y>0?i-grid.w:i, yp=y<grid.h-1?i+grid.w:i;
-      return (A[xm]+A[xp]+A[ym]+A[yp]-4*A[i]);
-    }
-
-    function step(){
-      const p=params, {B,C,N,S,u,tmp}=grid; const w=grid.w,h=grid.h; const dt=p.dt;
-
-      // Diffuse/advection for B
-      grid.forEach((x,y,i)=>{
-        let dB = p.DB*lap(B,i,x,y);
-        if(p.adv!==0){ const ux=u[i*2], uy=u[i*2+1];
-          const xm=Math.max(0,x-1), xp=Math.min(w-1,x+1), ym=Math.max(0,y-1), yp=Math.min(h-1,y+1);
-          const Bx=B[grid.index(xp,y)]-B[grid.index(xm,y)];
-          const By=B[grid.index(x,y p)]-B[grid.index(x,ym)]; // prevent typo
-        }
-      });
-      // We'll do simpler: pure diffusion; advection term omitted for stability in this minimal demo
-
-      // Reaction terms & update
-      grid.forEach((x,y,i)=>{
-        const b=B[i], c=C[i], n=N[i], s=S[i];
-        const M = (c/(c+p.C0))*(n/(n+p.N0));
-        const growth = p.alphaB*s*(1 + p.betaB*M*b)*(1 - b/p.K);
-        const dB = p.DB*lap(B,i,x,y) + (growth - p.deltaB*b);
-        const dC = p.DC*lap(C,i,x,y) + (p.alphaC*s - p.deltaC*c);
-        const dN = p.DN*lap(N,i,x,y) + (p.alphaN*s - p.deltaN*n - 0.02*b*n);
-        tmp[i]= b + dt*dB;
-        C[i] = c + dt*dC;
-        N[i] = n + dt*dN;
-      });
-      grid.B.set(grid.tmp);
-    }
-
-    const state={grid, params, mode:'berm'};
-    attachPainter(grid, params);
-
-    function ui(){
-      controlsBody.innerHTML = ''+
-        `<div class="row">
-           <button class="btn primary" id="play">${params.running? 'Pause':'Run'}</button>
-           <button class="btn" id="step">Step</button>
-           <button class="btn" id="reset">Reset</button>
-         </div>
-         <label>Paint target <select id="paintTarget">
-           <option value="S">Affinity S (boundary)</option>
-           <option value="Phi">Berm density Φ</option>
-         </select></label>
-         <label>Brush radius <input type="range" id="brush" min="2" max="16" step="1" value="${params.brush}"></label>
-         <label>Paint intensity <input type="range" id="pval" min="0" max="1" step="0.05" value="${params.paintValue}"></label>
-         <label>dt <input type="range" id="dt" min="0.05" max="0.6" step="0.05" value="${params.dt}"></label>
-         <label>Diffusion DB <input type="range" id="DB" min="0" max="2" step="0.05" value="${params.DB}"></label>
-         <label>α_B (deposition) <input type="range" id="alphaB" min="0" max="0.3" step="0.01" value="${params.alphaB}"></label>
-         <label>β_B (facilitation) <input type="range" id="betaB" min="0" max="1.2" step="0.05" value="${params.betaB}"></label>
-         <label>δ_B (loss) <input type="range" id="deltaB" min="0" max="0.1" step="0.002" value="${params.deltaB}"></label>`;
-      legend.innerHTML = 'B (berm) = green, C (char) = orange, N (nutrients) = blue; S (affinity) lightens.';
-      const $=(id)=>document.getElementById(id);
-      $('play').onclick=()=>{params.running=!params.running; ui();};
-      $('step').onclick=()=>{step(); drawGrid(grid,'berm');};
-      $('reset').onclick=()=>{grid.clear(); grid.forEach((x,y,i)=>{ const d=Math.abs(y-grid.h/2); grid.S[i]=0.7*Math.exp(-d/10);});};
-      $('paintTarget').onchange=(e)=>params.paintTarget=e.target.value;
-      $('brush').oninput=(e)=>params.brush=+e.target.value;
-      $('pval').oninput=(e)=>params.paintValue=+e.target.value;
-      ['dt','DB','alphaB','betaB','deltaB'].forEach(k=>{
-        $(k).oninput=(e)=>{params[k]=+e.target.value;};
-      });
-    }
-
-    ui();
-
-    function render(){ drawGrid(grid,'berm'); hud.textContent=`Terra Preta — t=${(t*params.dt).toFixed(1)} | ⌀S=${avg(grid.S).toFixed(2)} | ⌀B=${avg(grid.B).toFixed(2)}`; }
-    function avg(A){ let s=0; for(let i=0;i<A.length;i++) s+=A[i]; return s/A.length; }
-    let t=0; function loop(){ if(params.running){ step(); t++; } render(); requestAnimationFrame(loop);} loop();
-
-    return state;
-  }
-
-  // --------------------------------
-  // Simulation B: RSVP Scalar–Vector
-  // --------------------------------
-  function makeRSVPSim(){
-    const W=180, H=120; const grid = new Grid(W,H);
-    // B = Φ field; u = flow field (simple vortex)
-    grid.forEach((x,y,i)=>{
-      const cx=W/2, cy=H/2; const dx=(x-cx)/W, dy=(y-cy)/H;
-      // tangential vector field (vortex)
-      const ux = -dy, uy = dx; const s=0.6; grid.u[i*2]=s*ux; grid.u[i*2+1]=s*uy;
-      grid.B[i]=0; grid.S[i]=0; // S unused here; we paint Φ directly
-    });
-    const params={ dt:0.15, D:0.9, adv:0.8, decay:0.01, running:true, paintTarget:'Phi', paintValue:1.0, brush:6 };
-
-    function lap(A,i,x,y){
-      const xm=x>0?i-1:i, xp=x<grid.w-1?i+1:i;
-      const ym=y>0?i-grid.w:i, yp=y<grid.h-1?i+grid.w:i;
-      return (A[xm]+A[xp]+A[ym]+A[yp]-4*A[i]);
-    }
-    function step(){
-      const {B,u,tmp}=grid; const {D,adv,decay,dt}=params; const w=grid.w,h=grid.h;
-      grid.forEach((x,y,i)=>{
-        const lx = D*lap(B,i,x,y);
-        // Upwind-ish advection (simple centered difference)
-        const xm=Math.max(0,x-1), xp=Math.min(w-1,x+1), ym=Math.max(0,y-1), yp=Math.min(h-1,y+1);
-        const dBx=(B[grid.index(xp,y)]-B[grid.index(xm,y)])*0.5;
-        const dBy=(B[grid.index(x,y p)]-B[grid.index(x,ym)])*0.5; // guard below
-      });
-      // For numerical stability in a compact demo, use diffusion+decay only, then add gentle swirl in render
-      grid.forEach((x,y,i)=>{
-        const b=grid.B[i]; const d = params.D*lap(grid.B,i,x,y) - params.decay*b;
-        grid.tmp[i] = b + params.dt*d;
-      });
-      grid.B.set(grid.tmp);
-    }
-
-    attachPainter(grid, params);
-
-    function ui(){
-      controlsBody.innerHTML = ''+
-        `<div class="row">
-           <button class="btn primary" id="play">${params.running? 'Pause':'Run'}</button>
-           <button class="btn" id="step">Step</button>
-           <button class="btn" id="reset">Reset</button>
-         </div>
-         <label>Paint Φ (source) <input type="range" id="pval" min="0" max="2" step="0.1" value="${params.paintValue}"></label>
-         <label>Brush radius <input type="range" id="brush" min="2" max="20" step="1" value="${params.brush}"></label>
-         <label>dt <input type="range" id="dt" min="0.05" max="0.6" step="0.05" value="${params.dt}"></label>
-         <label>Diffusion D <input type="range" id="D" min="0" max="2" step="0.05" value="${params.D}"></label>
-         <label>Decay <input type="range" id="decay" min="0" max="0.1" step="0.002" value="${params.decay}"></label>`;
-      legend.innerHTML = 'Φ (scalar) heatmap; paint to inject mass. (Vector flow shown as swirl overlay.)';
-      const $=(id)=>document.getElementById(id);
-      $('play').onclick=()=>{params.running=!params.running; ui();};
-      $('step').onclick=()=>{step(); draw();};
-      $('reset').onclick=()=>{grid.B.fill(0)};
-      ['pval','brush','dt','D','decay'].forEach(k=>{$(k).oninput=(e)=>{params[k]=+e.target.value;};});
-    }
-
-    function drawVectors(){
-      // draw a subtle swirl field for intuition
-      ctx.save(); ctx.globalAlpha=0.25; ctx.strokeStyle='#64d7ff';
-      const skip=14; const sx=canvas.width/grid.w, sy=canvas.height/grid.h;
-      for(let y=skip;y<canvas.height;y+=skip){
-        for(let x=skip;x<canvas.width;x+=skip){
-          const gx=Math.floor(x/sx), gy=Math.floor(y/sy);
-          const i=grid.index(clamp(gx,0,grid.w-1), clamp(gy,0,grid.h-1));
-          const ux=grid.u[i*2], uy=grid.u[i*2+1];
-          const len=10; const x2=x+ux*len, y2=y+uy*len;
-          ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x2,y2); ctx.stroke();
-        }
-      }
-      ctx.restore();
-    }
-
-    function draw(){
-      drawGrid(grid,'rsvp');
-      drawVectors();
-      hud.textContent=`RSVP Scalar–Vector — t=${(t*params.dt).toFixed(1)} | ⌀Φ=${avg(grid.B).toFixed(2)}`;
-    }
-
-    function avg(A){ let s=0; for(let i=0;i<A.length;i++) s+=A[i]; return s/A.length; }
-    function loop(){ if(params.running){ step(); t++; } draw(); requestAnimationFrame(loop);} let t=0; ui(); loop();
-
-    return {grid, params, mode:'rsvp'};
-  }
-
-  // Tab logic
-  let sim = null; let current='berm';
-  function load(tab){
-    current=tab; if(sim && sim.dispose) sim.dispose();
-    if(tab==='berm') sim = makeBermSim(); else sim = makeRSVPSim();
-    resize();
-  }
-  tabs.addEventListener('click', (e)=>{
-    const t=e.target.closest('.tab'); if(!t) return; [...tabs.children].forEach(x=>x.classList.remove('active')); t.classList.add('active'); load(t.dataset.tab);
-  });
-
-  // boot
-  load('berm');
-})();
-</script></body>
 </html>
