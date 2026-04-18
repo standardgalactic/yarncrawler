@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pipe Field</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+canvas { position: fixed; top: 0; left: 0; display: block; }
+
+/* ── language selection overlay ── */
+#overlay {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.88);
+  z-index: 20;
+  transition: opacity 0.8s;
+}
+#overlay.gone { opacity: 0; pointer-events: none; }
+
+#overlay-title {
+  color: rgba(0,255,120,0.30);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  margin-bottom: 32px;
+  text-align: center;
+  line-height: 2.2;
+}
+
+.lang-btn {
+  display: block;
+  width: 220px;
+  border: 1px solid rgba(0,255,120,0.28);
+  color: rgba(0,255,120,0.45);
+  background: none;
+  padding: 13px 0;
+  margin: 7px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.25s, color 0.25s;
+}
+.lang-btn:hover {
+  border-color: rgba(0,255,120,0.75);
+  color: rgba(0,255,120,0.90);
+}
+
+/* ── subtitles ── */
+#subs {
+  position: fixed;
+  bottom: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(0,255,120,0.88);
+  font-size: 14px;
+  line-height: 1.65;
+  text-align: center;
+  max-width: 68%;
+  white-space: pre-line;
+  pointer-events: none;
+  z-index: 5;
+  text-shadow: 0 0 8px rgba(0,255,120,0.22);
+  min-height: 1.65em;
+}
+
+/* ── bottom bar ── */
+#bottom {
+  position: fixed;
+  bottom: 18px;
+  left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  z-index: 5;
+}
+
+#essay-link {
+  color: rgba(0,255,120,0.26);
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+#essay-link:hover { color: rgba(0,255,120,0.62); }
+
+#sub-toggle {
+  color: rgba(0,255,120,0.26);
+  font-size: 9px;
+  letter-spacing: 0.13em;
+  cursor: pointer;
+  transition: color 0.2s;
+  user-select: none;
+}
+#sub-toggle:hover { color: rgba(0,255,120,0.62); }
+</style>
+</head>
+<body>
+
+<canvas id="screen"></canvas>
+
+<!-- language selection overlay -->
+<div id="overlay">
+  <div id="overlay-title">
+    THE PHYSICS OF IRREVERSIBLE MINDS<br>
+    <span style="opacity:0.45;font-size:9px;letter-spacing:0.16em">
+      SELECT LANGUAGE · FIELD RUNS AUTONOMOUSLY WITHOUT AUDIO
+    </span>
+  </div>
+  <button class="lang-btn" id="btn-en">ENGLISH</button>
+  <button class="lang-btn" id="btn-es">ESPAÑOL</button>
+</div>
+
+<!-- subtitles -->
+<div id="subs"></div>
+
+<!-- bottom bar -->
+<div id="bottom">
+  <a id="essay-link"
+     href="irreversibility_ontology_mind.pdf"
+     target="_blank">
+    IRREVERSIBILITY AND THE ONTOLOGY OF MIND ↗
+  </a>
+  <span id="sub-toggle">SUBS ON</span>
+</div>
+
+<audio id="audio" preload="none"></audio>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CANVAS SETUP
+// ═══════════════════════════════════════════════════════════════
+
+const screen = document.getElementById('screen')
+const ctx    = screen.getContext('2d')
+
+let W = screen.width  = innerWidth
+let H = screen.height = innerHeight
+
+const mem = document.createElement('canvas')
+const tmp = document.createElement('canvas')
+mem.width = tmp.width = W
+mem.height = tmp.height = H
+const mctx = mem.getContext('2d')
+const tctx = tmp.getContext('2d')
+
+// ═══════════════════════════════════════════════════════════════
+// AUDIO SIGNALS
+// ═══════════════════════════════════════════════════════════════
+
+let analyser = null
+let timeBuf  = null
+let freqBuf  = null
+
+// start non-zero — field is alive before any audio
+let amp  = 0.28
+let mid  = 0.18
+let bass = 0.20
+let fakeT = 0
+
+function initAnalyser() {
+  if (analyser) return
+  const actx = new (window.AudioContext || window.webkitAudioContext)()
+  analyser = actx.createAnalyser()
+  analyser.fftSize = 2048
+  analyser.smoothingTimeConstant = 0.78
+  timeBuf = new Uint8Array(analyser.fftSize)
+  freqBuf = new Uint8Array(analyser.frequencyBinCount)
+  const src = actx.createMediaElementSource(document.getElementById('audio'))
+  src.connect(analyser)
+  analyser.connect(actx.destination)
+}
+
+function updateAudio() {
+  if (!analyser) {
+    // autonomous fallback — three offset sinusoids, never quite repeating
+    fakeT += 0.016
+    const a = 0.28 + Math.sin(fakeT)        * 0.22
+    const m = 0.20 + Math.sin(fakeT * 1.73) * 0.18
+    const b = 0.22 + Math.sin(fakeT * 0.61) * 0.20
+    amp  += (a - amp)  * 0.04
+    mid  += (m - mid)  * 0.04
+    bass += (b - bass) * 0.04
+    return
+  }
+
+  // time-domain amplitude
+  analyser.getByteTimeDomainData(timeBuf)
+  let energy = 0
+  for (let i = 0; i < timeBuf.length; i++) {
+    const d = timeBuf[i] - 128
+    energy += d * d
+  }
+  const rawAmp = Math.min(energy / (timeBuf.length * 2200), 1)
+  amp += (rawAmp - amp) * 0.09
+
+  // frequency bands
+  analyser.getByteFrequencyData(freqBuf)
+  const n = freqBuf.length
+
+  // bass: bottom 10%
+  let bSum = 0
+  const bEnd = Math.floor(n * 0.10)
+  for (let i = 0; i < bEnd; i++) bSum += freqBuf[i]
+  bass += (Math.min(bSum / (bEnd * 255), 1) - bass) * 0.07
+
+  // mid: 10–50%
+  let mSum = 0
+  const mEnd = Math.floor(n * 0.50)
+  for (let i = bEnd; i < mEnd; i++) mSum += freqBuf[i]
+  mid += (Math.min(mSum / ((mEnd - bEnd) * 255), 1) - mid) * 0.09
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SUBTITLE SYSTEM  (manual VTT — works on mobile)
+// ═══════════════════════════════════════════════════════════════
+
+const subsEl    = document.getElementById('subs')
+const subToggle = document.getElementById('sub-toggle')
+let subsOn = true
+let cues   = []
+
+subToggle.addEventListener('click', () => {
+  subsOn = !subsOn
+  subToggle.textContent = subsOn ? 'SUBS ON' : 'SUBS OFF'
+  if (!subsOn) subsEl.textContent = ''
+})
+
+function parseVTTTime(t) {
+  const p = t.trim().split(':')
+  return +p[0] * 3600 + +p[1] * 60 + parseFloat(p[2])
+}
+
+function loadVTT(url) {
+  cues = []
+  fetch(url)
+    .then(r => { if (!r.ok) throw new Error(); return r.text() })
+    .then(text => {
+      const lines = text.replace(/\r/g, '').split('\n')
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].includes('-->')) {
+          const [s, e] = lines[i].split('-->')
+          const textLines = []
+          let j = i + 1
+          while (j < lines.length && lines[j].trim() !== '' && !lines[j].includes('-->')) {
+            textLines.push(lines[j])
+            j++
+          }
+          if (textLines.length) {
+            cues.push({
+              start: parseVTTTime(s),
+              end:   parseVTTTime(e),
+              text:  textLines.join('\n')
+            })
+          }
+        }
+      }
+    })
+    .catch(() => { cues = [] })
+}
+
+function updateSubs() {
+  if (!subsOn) return
+  const audio = document.getElementById('audio')
+  if (!audio.duration || audio.paused) { subsEl.textContent = ''; return }
+  const t   = audio.currentTime
+  const cue = cues.find(c => t >= c.start && t <= c.end)
+  subsEl.textContent = cue ? cue.text : ''
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PLAYBACK  —  sequential: chosen language first, then the other
+// ═══════════════════════════════════════════════════════════════
+
+const TRACKS = {
+  en: {
+    audio: 'The_Physics_of_Irreversible_Minds.mp3',
+    vtt:   'The_Physics_of_Irreversible_Minds.vtt'
+  },
+  es: {
+    // encode the é so the src attribute is well-formed
+    audio: 'La_conciencia_requiere_una_p\u00e9rdida_irreversible.mp3',
+    vtt:   'La_conciencia_requiere_una_p\u00e9rdida_irreversible.vtt'
+  }
+}
+
+let queue = []
+
+function playTrack(key) {
+  const t   = TRACKS[key]
+  const aud = document.getElementById('audio')
+  aud.src   = t.audio
+  loadVTT(t.vtt)
+  aud.play().catch(() => {})
+}
+
+function playNext() {
+  if (!queue.length) return
+  playTrack(queue.shift())
+}
+
+document.getElementById('audio').addEventListener('ended', playNext)
+
+function startLanguage(first) {
+  document.getElementById('overlay').classList.add('gone')
+  initAnalyser()
+  queue = [first, first === 'en' ? 'es' : 'en']
+  playNext()
+}
+
+document.getElementById('btn-en').addEventListener('click', () => startLanguage('en'))
+document.getElementById('btn-es').addEventListener('click', () => startLanguage('es'))
+
+// auto-dismiss after 5 s → autonomous mode
+setTimeout(() => {
+  document.getElementById('overlay').classList.add('gone')
+}, 5000)
+
+// ═══════════════════════════════════════════════════════════════
+// PIPE FIELD
+// Temporal constants tuned for sedimentary accumulation:
+//   STEP 5           — structural stride, not trace
+//   life 500–1100    — long committed runs
+//   turn 0.008+mid   — deliberate turns, geometry from rhythm
+//   push 0.0016      — slow recession, deep memory
+//   fade 0.0055       — trails persist far; see Rayleigh–Jeans note below
+//   alpha 0.992      — reinforces layers instead of dissolving them
+//   overlap 0.8      — segments fuse into continuous conduit
+// ═══════════════════════════════════════════════════════════════
+
+const DIRS = [[1,0],[0,1],[-1,0],[0,-1]]
+const STEP = 5
+const MAX_WALKERS = 40
+
+class Walker {
+  constructor(x, y, dir) {
+    this.x    = x   ?? Math.random() * W
+    this.y    = y   ?? Math.random() * H
+    this.dir  = dir ?? Math.floor(Math.random() * 4)
+    this.life = 500 + Math.random() * 600
+    this.age  = 0
+  }
+
+  step(walkers) {
+    const [dx, dy] = DIRS[this.dir]
+    const nx = this.x + dx * STEP
+    const ny = this.y + dy * STEP
+
+    const alpha = 0.60 + amp * 0.50
+
+    // anchor overlap to current direction — eliminates corner discontinuity on turns
+    const back = 0.8
+    const sx = this.x - dx * STEP * back
+    const sy = this.y - dy * STEP * back
+
+    mctx.beginPath()
+    mctx.moveTo(sx, sy)
+    mctx.lineTo(nx, ny)
+    mctx.strokeStyle = `rgba(0,255,120,${alpha.toFixed(3)})`
+    mctx.lineWidth   = 2.2 + bass * 2.2
+    mctx.lineCap     = 'butt'
+    mctx.stroke()
+
+    // junction nodes — spacing varies by direction, breaks mechanical periodicity
+    if (this.age % (22 + this.dir * 2) === 0) {
+      mctx.beginPath()
+      mctx.arc(nx, ny, 2.5 + bass * 2, 0, Math.PI * 2)
+      mctx.fillStyle = `rgba(0,255,120,${(alpha * 0.70).toFixed(3)})`
+      mctx.fill()
+    }
+
+    // turn — deliberate; mid-band drives geometry
+    if (Math.random() < 0.008 + mid * 0.10) {
+      this.dir = (this.dir + (Math.random() < 0.5 ? 1 : 3)) % 4
+    }
+
+    // branch — rare; amplitude drives proliferation
+    if (walkers.length < MAX_WALKERS && Math.random() < 0.004 + amp * 0.06) {
+      walkers.push(new Walker(nx, ny, this.dir))
+    }
+
+    this.x  = nx;  this.y  = ny
+    this.age++;        this.life--
+
+    if (this.x < -4)   this.x = W + 4
+    if (this.x > W+4)  this.x = -4
+    if (this.y < -4)   this.y = H + 4
+    if (this.y > H+4)  this.y = -4
+
+    return this.life > 0
+  }
+}
+
+let walkers = []
+for (let i = 0; i < 10; i++) walkers.push(new Walker())
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ON STABILITY: THE RAYLEIGH–JEANS FAILURE MODE AND ITS FIX
+//
+// The classical Rayleigh–Jeans law assigned equal energy to every frequency
+// mode. With no cost to occupying high-frequency states and no mechanism to
+// distinguish old excitation from new, total radiated power diverged — the
+// ultraviolet catastrophe. Every mode contributed equally, and the spectrum
+// collapsed toward uniform brightness.
+//
+// This field has the same structural risk. Additive blending treats all
+// deposits equally regardless of age, and depth advection redistributes
+// structure without removing it. Over a long session, the far field saturates
+// into uniform glow — equipartition of luminance, the same failure in a
+// different medium.
+//
+// The fade constant below is the quantization condition:
+//
+//     tctx.fillStyle = 'rgba(0,0,0,0.0055)'
+//
+// It imposes a small continuous cost on persistence. Structure that cannot
+// sustain itself against this tax fades; structure being actively reinforced
+// by new deposits remains sharp. The field thereby maintains contrast between
+// present construction and historical residue — the near stays legible, the
+// far recedes without disappearing, no scale dominates completely.
+//
+// Planck resolved the classical divergence by making energy discrete so that
+// high-frequency modes cost too much to excite. The principle is the same
+// here: any system without a cost for occupying old states will drift toward
+// uniformity. Minimal dissipation is the condition for preserved structure.
+//
+// The same mechanism appears in attribution systems without a constraint on
+// the "present": all prior states accumulate equally, the current signal is
+// overwhelmed by the archive, and significance flattens. The fade term is, in
+// that sense, also a worldhood constraint — it ensures the present remains
+// distinguishable from what has already been laid down.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// depth advection — no blur; softness from iterated resampling only
+function advect() {
+  const push  = 0.0016 + bass * 0.002
+  const scale = 1 - push
+  const offX  = (W * (1 - scale)) / 2
+  const offY  = (H * (1 - scale)) / 2
+
+  tctx.clearRect(0, 0, W, H)
+  tctx.globalAlpha = 0.992
+  tctx.drawImage(mem, offX, offY, W * scale, H * scale)
+  tctx.globalAlpha = 1
+
+  // fade — 0.0055 prevents far-field saturation over long sessions
+  tctx.fillStyle = 'rgba(0,0,0,0.0055)'
+  tctx.fillRect(0, 0, W, H)
+
+  mctx.clearRect(0, 0, W, H)
+  mctx.drawImage(tmp, 0, 0)
+}
+
+function tick() {
+  updateAudio()
+  updateSubs()
+  advect()
+
+  mctx.globalCompositeOperation = 'lighter'
+  walkers = walkers.filter(w => w.step(walkers))
+  mctx.globalCompositeOperation = 'source-over'
+
+  // ── touch heat — permanently dyes pipe pixels amber ─────────
+  // A scratch canvas receives the amber gradient, then composites
+  // onto mem with 'source-atop': paint lands only where destination
+  // pixels already exist (the pipes), leaving black unchanged.
+  // The tint enters the memory buffer and recedes under advection
+  // exactly like the pipes themselves.
+  if (heat.radius > 0.5) {
+    const sc   = heat._scratch
+    const sctx = heat._sctx
+
+    sctx.clearRect(0, 0, W, H)
+
+    const grad = sctx.createRadialGradient(
+      heat.x, heat.y, 0,
+      heat.x, heat.y, heat.radius
+    )
+    grad.addColorStop(0,   'rgba(255,130,0,0.55)')
+    grad.addColorStop(0.6, 'rgba(255,160,20,0.18)')
+    grad.addColorStop(1,   'rgba(255,160,20,0)')
+
+    sctx.fillStyle = grad
+    sctx.fillRect(0, 0, W, H)
+
+    // source-atop: only paints where mem already has pixels (the pipes)
+    mctx.save()
+    mctx.globalCompositeOperation = 'source-atop'
+    mctx.drawImage(sc, 0, 0)
+    mctx.restore()
+  }
+
+  // very slow growth, very slow decay — thermal, not reactive
+  if (heat.active) {
+    heat.radius += (260 - heat.radius) * 0.018
+  } else {
+    heat.radius *= 0.96
+  }
+
+  if (walkers.length < 12) walkers.push(new Walker())
+
+  ctx.clearRect(0, 0, W, H)
+  ctx.drawImage(mem, 0, 0)
+
+  requestAnimationFrame(tick)
+}
+
+// ── touch / pointer heat ──────────────────────────────────────
+// Works on mobile (touch) and desktop (mouse hold).
+// Touch events are passive by default on mobile; pointer events
+// are unified and don't require separate touch/mouse handlers.
+
+const heat = { x: 0, y: 0, active: false, radius: 0 }
+
+// scratch canvas for source-atop dye — same size as main buffer
+heat._scratch = document.createElement('canvas')
+heat._scratch.width  = W
+heat._scratch.height = H
+heat._sctx = heat._scratch.getContext('2d')
+
+screen.addEventListener('pointerdown', e => {
+  if (document.getElementById('overlay').classList.contains('gone')) {
+    heat.x = e.clientX
+    heat.y = e.clientY
+    heat.active = true
+  }
+})
+
+screen.addEventListener('pointermove', e => {
+  if (heat.active) {
+    heat.x = e.clientX
+    heat.y = e.clientY
+  }
+})
+
+screen.addEventListener('pointerup',     () => { heat.active = false })
+screen.addEventListener('pointercancel', () => { heat.active = false })
+
+tick()
+
+window.addEventListener('resize', () => {
+  W = screen.width  = mem.width  = tmp.width  = innerWidth
+  H = screen.height = mem.height = tmp.height = innerHeight
+  heat._scratch.width  = W
+  heat._scratch.height = H
+  mctx.clearRect(0, 0, W, H)
+})
+</script>
+</body>
+</html>
