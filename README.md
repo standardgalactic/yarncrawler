@@ -1,5 +1,7 @@
 # Yarncrawler in Action
 
+[Irreversibility and the Ontology of Mind](https://standardgalactic.github.io/yarncrawler/irreversibility_ontology_mind.pdf) 
+
 ## Constraint Before Completion
 
 [Audio Overview](https://standardgalactic.github.io/yarncrawler/working/)
